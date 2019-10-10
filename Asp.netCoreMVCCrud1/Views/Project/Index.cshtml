@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Asp.netCoreMVCCrud1.Models.Project>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="AddOrEdit">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ArticleHeadline)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArticleUrl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArticleDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArticleDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Confidentiality)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrganizationId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Country)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IndustryId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UseCaseId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Maturity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TechnicalVendor)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArticleHeadline)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArticleUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArticleDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArticleDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Confidentiality)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrganizationId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Country)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IndustryId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UseCaseId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Maturity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TechnicalVendor)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ProjectId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ProjectId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ProjectId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
