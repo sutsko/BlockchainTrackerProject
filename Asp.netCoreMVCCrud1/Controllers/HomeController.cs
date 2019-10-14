@@ -8,7 +8,6 @@ using Asp.netCoreMVCCrud1.Models;
 
 namespace Asp.netCoreMVCCrud1.Controllers
 {
-
     public class HomeController : Controller
     {
         public IActionResult Index()
