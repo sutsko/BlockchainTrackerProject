@@ -11,6 +11,7 @@
     <div class="col-md-auto">
         <form asp-action="AddOrEdit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ProjectId" /> <!--The asp-for is a way of saying "the control for" i think-->
             <div class="form-group">
                 <label asp-for="ArticleHeadline" class="control-label"></label>
                 <input asp-for="ArticleHeadline" class="form-control" />
@@ -72,8 +73,13 @@
                     <span asp-validation-for="TechnicalVendor" class="text-danger"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <input type="submit" value="Submit" class="btn btn-primary btn-block" />
+                </div>
+                <div class="form-group col-md-6">
+                    <a asp-action="Index"  class="btn btn-secondary btn-block"><i class="fa fa-table"></i>Back to List</a>
+                </div>
             </div>
         </form>
     </div>
