@@ -15,6 +15,7 @@ namespace Asp.netCoreMVCCrud1.Models
               
         }
 
+        // a DB set is a representation of a table in the database
         public DbSet<Project> Projects { get; set; } 
     }
 }

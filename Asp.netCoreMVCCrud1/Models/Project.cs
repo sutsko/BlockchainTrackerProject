@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,17 +24,30 @@ namespace Asp.netCoreMVCCrud1.Models
         [DisplayName("Article Date")]
         public string ArticleDate { get; set; }
         public string Confidentiality { get; set; }
+        
+        [ForeignKey("Organization")]
         [DisplayName("Organization ID")]
         public int OrganizationId { get; set; }
+        
         [DisplayName("Country")]
         public string Country { get; set; }
+        
+        [ForeignKey("Industry")]
         [DisplayName("Industry ID")]
         public int IndustryId { get; set; }
+        
+        [ForeignKey("Usecase")]
         [DisplayName("Use Case ID")]
         public int UseCaseId { get; set; }
+        
         public string Maturity { get; set; }
+        
         [DisplayName("Technical Vendor")]
         public string TechnicalVendor { get; set; }
+
+        public virtual Organization Organization { get; set; }
+        public virtual Industry Industry { get; set; }
+        public virtual Usecase Usecase { get; set; }
 
     }
 }
