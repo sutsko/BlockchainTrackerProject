@@ -59,7 +59,9 @@ namespace Asp.netCoreMVCCrud1
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    //This is setting the default controller and which page, i guess, that it will load at start
+                    //So this will select "ProjectController" i guess. By deafualt we are in the projectcontroller and index action method 
+                    template: "{controller=Project}/{action=Index}/{id?}");
             });
         }
     }

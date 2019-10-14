@@ -43,10 +43,15 @@ namespace Asp.netCoreMVCCrud1.Controllers
         }
 
         // GET: Project/Create
+        //When the asp-action="AddOrEdit" in index.cshtml is called on the client side, this function will be run
         public IActionResult AddOrEdit(int id = 0)
         {
+            if(id==0)
             //This will return the view "addOrEdit" from the folder Views--> Project --> AddOrEdit
             return View(new Project());
+            else
+                //this function will ask the database to find the project with the corresponding id. 
+                return View(_context.Projects.Find(id));
         }
 
         // POST: Project/Create
@@ -54,11 +59,18 @@ namespace Asp.netCoreMVCCrud1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProjectId,ArticleHeadline,ArticleUrl,ArticleDescription,ArticleDate,Confidentiality,OrganizationId,Country,IndustryId,UseCaseId,Maturity,TechnicalVendor")] Project project)
+        //The bind function will bind the corresponding values from the UI to the corresponding element that we have defined in model. In this case Project. 
+        //All of those parameters have a corresponding control inside the AddOrEdit.cshtml. Just not projectID since it is autoincremented
+        public async Task<IActionResult> AddOrEdit([Bind("ProjectId,ArticleHeadline,ArticleUrl,ArticleDescription,ArticleDate,Confidentiality,OrganizationId,Country,IndustryId,UseCaseId,Maturity,TechnicalVendor")] Project project)
         {
+           
+            //So this checks whether the data given and binded to the Project-class instance is in order with what we have specified in the Model folder. 
             if (ModelState.IsValid)
             {
-                _context.Add(project);
+                if (project.ProjectId == 0)
+                    _context.Add(project); //This is an insert operation to the database. 
+                else
+                    _context.Update(project); //This is therefore an update operation to the database, since the projectID is already existing. 
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -119,6 +131,18 @@ namespace Asp.netCoreMVCCrud1.Controllers
         // GET: Project/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var project = await _context.Projects.FindAsync(id);
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+
+            //This line will just send you back to the main screen when you delete something
+            return RedirectToAction(nameof(Index));
+        }
+
+        /*
+        // GET: Project/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
             if (id == null)
             {
                 return NotFound();
@@ -133,6 +157,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             return View(project);
         }
+        */
 
         // POST: Project/Delete/5
         [HttpPost, ActionName("Delete")]
