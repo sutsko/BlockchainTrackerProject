@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Asp.netCoreMVCCrud1.Models;
+using System.Diagnostics;
 
 namespace Asp.netCoreMVCCrud1.Controllers
 {
@@ -21,6 +22,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
         // GET: Organization
         public async Task<IActionResult> Index()
         {
+            List<Organization> hej = GetOrgList();
             return View(await _context.Organizations.ToListAsync());
         }
 
@@ -148,5 +150,14 @@ namespace Asp.netCoreMVCCrud1.Controllers
         {
             return _context.Organizations.Any(e => e.OrganizationId == id);
         }
+
+        public List<Organization> GetOrgList()
+        {
+            List<Organization> Orglist =_context.Organizations.ToList();
+          
+            return Orglist;
+        }
+
+
     }
 }

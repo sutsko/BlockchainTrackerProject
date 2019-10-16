@@ -26,18 +26,18 @@ namespace Asp.netCoreMVCCrud1.Models
         public string Confidentiality { get; set; }
         
         [ForeignKey("Organization")]
-        [DisplayName("Organization ID")]
+        [DisplayName("Organization")]
         public int OrganizationId { get; set; }
         
         [DisplayName("Country")]
         public string Country { get; set; }
         
         [ForeignKey("Industry")]
-        [DisplayName("Industry ID")]
+        [DisplayName("Industry")]
         public int IndustryId { get; set; }
         
         [ForeignKey("Usecase")]
-        [DisplayName("Use Case ID")]
+        [DisplayName("Use Case")]
         public int UseCaseId { get; set; }
         
         public string Maturity { get; set; }
@@ -48,6 +48,13 @@ namespace Asp.netCoreMVCCrud1.Models
         public virtual Organization Organization { get; set; }
         public virtual Industry Industry { get; set; }
         public virtual Usecase Usecase { get; set; }
+
+        [NotMapped]
+        public List<Organization> OrganizationList { get; set; }
+        [NotMapped]
+        public List<Industry> IndustryList { get; set; }
+        [NotMapped]
+        public List<Usecase> UsecaseList { get; set; }
 
     }
 }

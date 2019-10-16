@@ -148,5 +148,12 @@ namespace Asp.netCoreMVCCrud1.Controllers
         {
             return _context.Usecases.Any(e => e.UsecaseId == id);
         }
+
+        public List<Usecase> GetUsecList()
+        {
+            List<Usecase> Useclist = _context.Usecases.ToList();
+
+            return Useclist;
+        }
     }
 }

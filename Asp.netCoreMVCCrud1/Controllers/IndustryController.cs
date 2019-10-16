@@ -155,5 +155,13 @@ namespace Asp.netCoreMVCCrud1.Controllers
         {
             return _context.Industries.Any(e => e.IndustryId == id);
         }
+
+        public List<Industry> GetInduList()
+        {
+            List<Industry> Indulist = _context.Industries.ToList();
+
+            return Indulist;
+        }
+
     }
 }

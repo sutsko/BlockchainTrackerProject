@@ -7,15 +7,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Asp.netCoreMVCCrud1.Models;
 
+
 namespace Asp.netCoreMVCCrud1.Controllers
 {
     public class ProjectController : Controller
     {
-        private readonly ProjectContext _context;
+        private  ProjectContext _context;
+        public IndustryController _ic;
+        private SectorController _sc;
+        private OrganizationController _oc;
+        private UsecaseController _uc;
 
         public ProjectController(ProjectContext context)
         {
             _context = context;
+           
         }
 
         // GET: Project
@@ -42,13 +48,18 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return View(project);
         }
 
-        // GET: Project/Create
+        // GET: Project/AddOrEdit
         //When the asp-action="AddOrEdit" in index.cshtml is called on the client side, this function will be run
         public IActionResult AddOrEdit(int id = 0)
         {
-            if(id==0)
-            //This will return the view "addOrEdit" from the folder Views--> Project --> AddOrEdit
-            return View(new Project());
+           
+            if (id == 0) {
+                //https://stackoverflow.com/questions/31647259/populate-dropdownlist-in-mvc-5
+                var p = ProjectWithLists();
+
+                //This will return the view "addOrEdit" from the folder Views--> Project --> AddOrEdit
+                return View(p);
+            }
             else
                 //this function will ask the database to find the project with the corresponding id. 
                 return View(_context.Projects.Find(id));
@@ -174,5 +185,28 @@ namespace Asp.netCoreMVCCrud1.Controllers
         {
             return _context.Projects.Any(e => e.ProjectId == id);
         }
+
+        /*
+        public List<Organization> GetOrgList()
+        {
+            return _oc.GetOrgList();
+        }*/
+
+        public Project ProjectWithLists()
+        {
+            Project p = new Project();
+            p.OrganizationList = new OrganizationController(_context).GetOrgList();
+            p.IndustryList = new IndustryController(_context).GetInduList();
+            p.UsecaseList = new UsecaseController(_context).GetUsecList();
+
+            return p;
+        }
+
+        public List<Industry> GetInduList()
+        {
+           
+            return _ic.GetInduList();
+        }
+
     }
 }
