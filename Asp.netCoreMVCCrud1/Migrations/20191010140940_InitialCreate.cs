@@ -18,10 +18,10 @@ namespace Asp.netCoreMVCCrud1.Migrations
                     ArticleDescription = table.Column<string>(nullable: true),
                     ArticleDate = table.Column<string>(nullable: true),
                     Confidentiality = table.Column<string>(nullable: true),
-                    OrganizationId = table.Column<int>(nullable: false),
+                    OrganizationId = table.Column<int>(nullable: false, defaultValue: 0),
                     Country = table.Column<string>(nullable: true),
-                    IndustryId = table.Column<int>(nullable: false),
-                    UseCaseId = table.Column<int>(nullable: false),
+                    IndustryId = table.Column<int>(nullable: false, defaultValue: 0),
+                    UseCaseId = table.Column<int>(nullable: false, defaultValue:0),
                     Maturity = table.Column<string>(nullable: true),
                     TechnicalVendor = table.Column<string>(nullable: true)
                 },

@@ -10,6 +10,6 @@ namespace Asp.netCoreMVCCrud1.Models
     {
         [Key]
         public int UsecaseId { get; set; }
-        public int UsecaseName { get; set; }
+        public string UsecaseName { get; set; }
     }
 }
