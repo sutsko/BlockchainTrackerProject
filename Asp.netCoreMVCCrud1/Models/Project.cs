@@ -55,6 +55,5 @@ namespace Asp.netCoreMVCCrud1.Models
         public List<Industry> IndustryList { get; set; }
         [NotMapped]
         public List<Usecase> UsecaseList { get; set; }
-
     }
 }

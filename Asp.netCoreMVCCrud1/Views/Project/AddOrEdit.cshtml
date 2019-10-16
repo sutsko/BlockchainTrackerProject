@@ -5,6 +5,7 @@
 }
 
 
+
 <h4>Project form</h4>
 <hr />
 <div class="row">
@@ -19,7 +20,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="ArticleUrl" class="control-label"></label>
-                <input asp-for="ArticleUrl" class="form-control" />
+                <input asp-for="ArticleUrl" class="form-control" value="" />
                 <span asp-validation-for="ArticleUrl" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -30,12 +31,17 @@
             <div class="form-row">
                 <div class="form-group col-md-auto">
                     <label asp-for="ArticleDate" class="control-label"></label>
-                    <input asp-for="ArticleDate" class="form-control" />
+                    <input type="date" value="<?php echo $today; ?>" class="form-control" id="date" name="date" asp-for="ArticleDate" />
                     <span asp-validation-for="ArticleDate" class="text-danger"></span>
                 </div>
                 <div class="form-group col-md-auto">
                     <label asp-for="Confidentiality" class="control-label"></label>
-                    <input asp-for="Confidentiality" class="form-control" />
+                    <select asp-for="Confidentiality" class="browser-default custom-select col-md-auto">
+                        <option selected>Is this confidential?</option>
+                        <!--Add the for each from previous drop downs later-->
+                        <option>Non-confidential</option>
+                        <option>Confidential</option>
+                    </select>
                     <span asp-validation-for="Confidentiality" class="text-danger"></span>
                 </div>
             </div>
@@ -53,29 +59,52 @@
                     </select>
                     <span asp-validation-for="OrganizationId" class="text-danger"></span>
                 </div>
-
-                
-
                 <div class="form-group col-md-auto">
                     <label asp-for="Country" class="control-label"></label>
-                    <input asp-for="Country" class="form-control" />
+                    <select asp-for="Country" class="browser-default custom-select col-md-auto">
+                        <option selected>Pick your Country</option>
+                        <!--Add the for each from previous drop downs later-->
+                        <option>Two</option>
+                        <option>Three</option>
+                    </select>
                     <span asp-validation-for="Country" class="text-danger"></span>
                 </div>
                 <div class="form-group col-md-auto">
                     <label asp-for="IndustryId" class="control-label"></label>
-                    <input asp-for="IndustryId" class="form-control" />
+                    <select asp-for="IndustryId" class="browser-default custom-select col-md-auto">
+                        <option selected>Pick your Industry</option>
+                        @foreach (var item in Model.IndustryList)
+                        {
+                            <option value="@item.IndustryId">@Html.DisplayFor(modelitem => item.IndustryId).  @Html.DisplayFor(modelitem => item.IndustryName)</option>
+                        }
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
                     <span asp-validation-for="IndustryId" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-auto">
                     <label asp-for="UseCaseId" class="control-label"></label>
-                    <input asp-for="UseCaseId" class="form-control" />
+                    <select asp-for="UseCaseId" class="browser-default custom-select col-md-auto">
+                        <option selected>Pick your Use Case</option>
+                        @foreach (var item in Model.UsecaseList)
+                        {
+                            <option value="@item.UsecaseId">@Html.DisplayFor(modelitem => item.UsecaseId).  @Html.DisplayFor(modelitem => item.UsecaseName)</option>
+                        }
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
                     <span asp-validation-for="UseCaseId" class="text-danger"></span>
                 </div>
                 <div class="form-group col-md-auto">
                     <label asp-for="Maturity" class="control-label"></label>
-                    <input asp-for="Maturity" class="form-control" />
+                    <select asp-for="Maturity" class="browser-default custom-select col-md-auto">
+                        <option selected>Pick the maturity</option>
+                        <!--Add the for each from previous drop downs later-->
+                        <option>Two</option>
+                        <option>Three</option>
+                    </select>
                     <span asp-validation-for="Maturity" class="text-danger"></span>
                 </div>
                 <div class="form-group col-md-auto">
