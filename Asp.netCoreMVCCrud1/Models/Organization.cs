@@ -11,7 +11,9 @@ namespace Asp.netCoreMVCCrud1.Models
     {
         [Key]
         public int OrganizationId {get; set; }
+        [DisplayName("Organization name")]
         public string OrganizationName {get; set;}
+        [DisplayName("Organization type")]
         public int OrganizationType {get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Asp.netCoreMVCCrud1.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 
 
 namespace Asp.netCoreMVCCrud1.Controllers
@@ -56,6 +57,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             if (id == 0) {
                 //https://stackoverflow.com/questions/31647259/populate-dropdownlist-in-mvc-5
                 var p = ProjectWithLists();
+                
 
                 //This will return the view "addOrEdit" from the folder Views--> Project --> AddOrEdit
                 return View(p);
@@ -74,18 +76,29 @@ namespace Asp.netCoreMVCCrud1.Controllers
         //All of those parameters have a corresponding control inside the AddOrEdit.cshtml. Just not projectID since it is autoincremented
         public async Task<IActionResult> AddOrEdit([Bind("ProjectId,ArticleHeadline,ArticleUrl,ArticleDescription,ArticleDate,Confidentiality,OrganizationId,Country,IndustryId,UseCaseId,Maturity,TechnicalVendor")] Project project)
         {
-           
-            //So this checks whether the data given and binded to the Project-class instance is in order with what we have specified in the Model folder. 
-            if (ModelState.IsValid)
+
+            var pp = new Project();
+            try
             {
-                if (project.ProjectId == 0)
-                    _context.Add(project); //This is an insert operation to the database. 
-                else
-                    _context.Update(project); //This is therefore an update operation to the database, since the projectID is already existing. 
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //So this checks whether the data given and binded to the Project-class instance is in order with what we have specified in the Model folder. 
+                if (ModelState.IsValid)
+                {
+                    if (project.ProjectId == 0)
+                        _context.Add(project); //This is an insert operation to the database. 
+                    else
+                        _context.Update(project); //This is therefore an update operation to the database, since the projectID is already existing. 
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }catch (RetryLimitExceededException) {
+                //Log the error (uncomment dex variable name and add a line here to write a log.)
+                ModelState.AddModelError("dex", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
             }
-            return View(project);
+            var p = ProjectWithLists();
+            p.ArticleHeadline = "hej";
+            project.OrganizationList = p.OrganizationList;
+
+            return View(p);
         }
 
         // GET: Project/Edit/5
@@ -202,11 +215,14 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return p;
         }
 
-        public List<Industry> GetInduList()
+        /*
+        private void PopulateDepartmentsDropDownList(object selectedDepartment = null)
         {
-           
-            return _ic.GetInduList();
-        }
+            var departmentsQuery = from d in db.Departments
+                                   orderby d.Name
+                                   select d;
+            ViewBag.DepartmentID = new SelectList(departmentsQuery, "DepartmentID", "Name", selectedDepartment);
+        }*/
 
     }
 }
