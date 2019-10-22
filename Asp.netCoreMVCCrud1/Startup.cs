@@ -42,7 +42,7 @@ namespace Asp.netCoreMVCCrud1
             else
                 //Will create an instance of the Project Context class. 
                 services.AddDbContext<ProjectContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("MyDbConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DevConnection")));
 
             // Automatically perform database migration
             services.BuildServiceProvider().GetService<ProjectContext>().Database.Migrate();
