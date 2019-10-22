@@ -35,9 +35,18 @@ namespace Asp.netCoreMVCCrud1
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            //Will create an instance of the Project Context class. 
-            services.AddDbContext<ProjectContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DevConnection")));
+            // Use SQL Database if in Azure, otherwise, use local
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+                services.AddDbContext<ProjectContext>(options =>
+                        options.UseSqlServer(Configuration.GetConnectionString("MyDbConnection")));
+            else
+                //Will create an instance of the Project Context class. 
+                services.AddDbContext<ProjectContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DevConnection")));
+
+            // Automatically perform database migration
+            services.BuildServiceProvider().GetService<ProjectContext>().Database.Migrate();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
