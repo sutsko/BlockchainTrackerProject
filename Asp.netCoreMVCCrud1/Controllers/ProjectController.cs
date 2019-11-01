@@ -53,18 +53,28 @@ namespace Asp.netCoreMVCCrud1.Controllers
         //When the asp-action="AddOrEdit" in index.cshtml is called on the client side, this function will be run
         public IActionResult AddOrEdit(int id = 0)
         {
-           
-            if (id == 0) {
+            var p = ProjectWithLists();
+
+            if (id == 0)
+            {
                 //https://stackoverflow.com/questions/31647259/populate-dropdownlist-in-mvc-5
-                var p = ProjectWithLists();
-                
+
+
 
                 //This will return the view "addOrEdit" from the folder Views--> Project --> AddOrEdit
                 return View(p);
             }
-            else
-                //this function will ask the database to find the project with the corresponding id. 
-                return View(_context.Projects.Find(id));
+            else {
+            
+                Project project_from_id = _context.Projects.Find(id);
+                project_from_id.IndustryList = p.IndustryList;
+                project_from_id.OrganizationList = p.OrganizationList;
+                project_from_id.UsecaseList = p.UsecaseList;
+
+            //this function will ask the database to find the project with the corresponding id. 
+            return View(project_from_id); 
+            }
+                
         }
 
         // POST: Project/Create
@@ -74,22 +84,32 @@ namespace Asp.netCoreMVCCrud1.Controllers
         [ValidateAntiForgeryToken]
         //The bind function will bind the corresponding values from the UI to the corresponding element that we have defined in model. In this case Project. 
         //All of those parameters have a corresponding control inside the AddOrEdit.cshtml. Just not projectID since it is autoincremented
-        public async Task<IActionResult> AddOrEdit([Bind("ProjectId,ArticleHeadline,ArticleUrl,ArticleDescription,ArticleDate,Confidentiality,OrganizationId,Country,IndustryId,UseCaseId,Maturity,TechnicalVendor")] Project project)
+        public async Task<IActionResult> AddOrEdit([Bind("ProjectId,ArticleHeadline,ArticleUrl,ArticleDescription,ArticleDate,Confidentiality,OrganizationId,Country,IndustryId,UseCaseId,Maturity,TechnicalVendor")] Project project, string command, string myOrganization)
         {
 
-            var pp = new Project();
+        
             try
             {
-                //So this checks whether the data given and binded to the Project-class instance is in order with what we have specified in the Model folder. 
-                if (ModelState.IsValid)
+                switch (command)
                 {
-                    if (project.ProjectId == 0)
-                        _context.Add(project); //This is an insert operation to the database. 
-                    else
-                        _context.Update(project); //This is therefore an update operation to the database, since the projectID is already existing. 
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    case "action:reload":
+                        /* Your code */
+                        break;
+
+                    case "action:submit":
+                        if (ModelState.IsValid)
+                        {
+                            if (project.ProjectId == 0)
+                                _context.Add(project); //This is an insert operation to the database. 
+                            else
+                                _context.Update(project); //This is therefore an update operation to the database, since the projectID is already existing. 
+                            await _context.SaveChangesAsync();
+                            return RedirectToAction(nameof(Index));
+                            //So this checks whether the data given and binded to the Project-class instance is in order with what we have specified in the Model folder. 
+                        }
+                        break;
                 }
+
             }catch (RetryLimitExceededException) {
                 //Log the error (uncomment dex variable name and add a line here to write a log.)
                 ModelState.AddModelError("dex", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
@@ -110,6 +130,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             }
 
             var project = await _context.Projects.FindAsync(id);
+
             if (project == null)
             {
                 return NotFound();
