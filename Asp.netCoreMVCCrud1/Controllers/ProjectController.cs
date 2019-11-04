@@ -22,8 +22,10 @@ namespace Asp.netCoreMVCCrud1.Controllers
         public ProjectController(ProjectContext context)
         {
             _context = context;
-           
-        }
+            _oc = new OrganizationController(_context);
+
+
+    }
 
         // GET: Project
         public async Task<IActionResult> Index()
@@ -58,7 +60,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             if (id == 0)
             {
                 //https://stackoverflow.com/questions/31647259/populate-dropdownlist-in-mvc-5
-
+                p.ArticleDate = DateTime.Today;
 
 
                 //This will return the view "addOrEdit" from the folder Views--> Project --> AddOrEdit
@@ -93,19 +95,34 @@ namespace Asp.netCoreMVCCrud1.Controllers
                 switch (command)
                 {
                     case "action:reload":
-                        /* Your code */
+                        /* This was never implemented. Kept as a reminder of a way to do this.  */
                         break;
 
                     case "action:submit":
                         if (ModelState.IsValid)
                         {
-                            if (project.ProjectId == 0)
+                            if (project.ProjectId == 0) {
+                                //Check if the organization is a new one. 
+                                if (project.OrganizationId==0)
+                                {
+                                    Organization preliminaryOrg = new Organization();
+                                    preliminaryOrg.OrganizationName = myOrganization;
+                                    preliminaryOrg.OrganizationType = 1;
+                                    await _oc.Create(preliminaryOrg);
+
+                                    project.OrganizationId = preliminaryOrg.OrganizationId;
+                                }
+
                                 _context.Add(project); //This is an insert operation to the database. 
-                            else
+                            }
+                            else { 
                                 _context.Update(project); //This is therefore an update operation to the database, since the projectID is already existing. 
+                            }
+                            
                             await _context.SaveChangesAsync();
                             return RedirectToAction(nameof(Index));
-                            //So this checks whether the data given and binded to the Project-class instance is in order with what we have specified in the Model folder. 
+                                //So this checks whether the data given and binded to the Project-class instance is in order with what we have specified in the Model folder. 
+                            
                         }
                         break;
                 }
@@ -115,10 +132,10 @@ namespace Asp.netCoreMVCCrud1.Controllers
                 ModelState.AddModelError("dex", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
             }
             var p = ProjectWithLists();
-            p.ArticleHeadline = "hej";
+            
             project.OrganizationList = p.OrganizationList;
 
-            return View(p);
+            return View(project);
         }
 
         // GET: Project/Edit/5
@@ -220,11 +237,6 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return _context.Projects.Any(e => e.ProjectId == id);
         }
 
-        /*
-        public List<Organization> GetOrgList()
-        {
-            return _oc.GetOrgList();
-        }*/
 
         public Project ProjectWithLists()
         {
@@ -235,15 +247,6 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             return p;
         }
-
-        /*
-        private void PopulateDepartmentsDropDownList(object selectedDepartment = null)
-        {
-            var departmentsQuery = from d in db.Departments
-                                   orderby d.Name
-                                   select d;
-            ViewBag.DepartmentID = new SelectList(departmentsQuery, "DepartmentID", "Name", selectedDepartment);
-        }*/
 
     }
 }

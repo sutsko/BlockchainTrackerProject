@@ -3,6 +3,67 @@
 @{
     ViewData["Title"] = "AddOrEdit";
 }
+    <style>
+
+
+        body {
+            font: 16px Arial;
+        }
+
+        /*the container must be positioned relative:*/
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+
+        input {
+            border: 1px solid transparent;
+            background-color: #f1f1f1;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+            input[type=text] {
+                background-color: #f1f1f1;
+                width: 100%;
+            }
+
+            input[type=submit] {
+                background-color: DodgerBlue;
+                color: #fff;
+                cursor: pointer;
+            }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            /*position the autocomplete items to be the same width as the container:*/
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+
+            .autocomplete-items div {
+                padding: 10px;
+                cursor: pointer;
+                background-color: #fff;
+                border-bottom: 1px solid #d4d4d4;
+            }
+
+                /*when hovering an item:*/
+                .autocomplete-items div:hover {
+                    background-color: #e9e9e9;
+                }
+
+        /*when navigating through the items using the arrow keys:*/
+        .autocomplete-active {
+            background-color: DodgerBlue !important;
+            color: #ffffff;
+        }
+    </style>
 
 <h4>Project form</h4>
 <hr />
@@ -29,8 +90,8 @@
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label asp-for="ArticleDate" class="control-label"></label>
-                    <input type="date" class="form-control" id="date" name="date" asp-for="ArticleDate" />
-
+                    @Html.EditorFor(model => model.ArticleDate, new { htmlAttributes = new { @class = "form-control", @type = "date", @id = "datePicker" } })
+                    <!-- <input type="date" class="form-control" id="date" name="date" asp-for="ArticleDate" /> -->
                     <span asp-validation-for="ArticleDate" class="text-danger"></span>
                 </div>
                 <div class="form-group col-md-4">
@@ -48,7 +109,7 @@
                 <div class="form-group col-md-4">
                    
                     <label asp-for="OrganizationId" class="control-label">Organization: </label>
-                    <input id="myInput" type="text" name="myOrganization" placeholder="Organization" onkeyup="getId()" class="form-control" />
+                    <input id="orgInput" type="text" name="myOrganization" placeholder="Organization" onkeyup="getId()" class="form-control" />
                     <input asp-for="OrganizationId" value="0" id="hiddenOrgValue" hidden readonly />
 
 
@@ -350,24 +411,12 @@
                     <button type="submit" name="command" value="action:submit" class="btn btn-primary btn-block" onclick="getId()">Submit</button>
                 </div>
                 <div class="form-group col-md-6">
-                    <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i>Back to List</a>
+                    <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
                 </div>
             </div>
         </form>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-
-
-<div class="autocomplete" style="width:300px;">
-    <input id="myInput" type="text" name="myOrganization" placeholder="Organization">
-</div>
-
-
 
 
 <script>
@@ -474,30 +523,36 @@
     var orgMap = new Map();
 
 
-    @foreach (var d in Model.OrganizationList)
+    @foreach (var m in Model.OrganizationList)
     {
-        @:organizations.push("@d.OrganizationName");
-        @:orgMap.set("@d.OrganizationName", "@d.OrganizationId");
+        @:organizations.push("@m.OrganizationName");
+        @:orgMap.set("@m.OrganizationName", "@m.OrganizationId");
     }
 
     function getId() {
 
-        var x = document.getElementById("myInput").value;
+        var orgName = document.getElementById("orgInput").value;
+        var orgNameToId = orgMap.get(orgName); 
 
-        var y = document.getElementById("hiddenOrgValue");
-        var z = orgMap.get(x); 
+        var orgIdInHtml = document.getElementById("hiddenOrgValue");
 
-        if (z != null) {
-             y.value = z ;  
+        if (orgNameToId != null) {
+             orgIdInHtml.value = orgNameToId ;  
         } else {
-            y = 0;
+            orgIdInHtml = 0;
         }
-        
     }
 
+    function setDate() {
+        document.getElementById('datePicker').value = new Date().toDateInputValue();
+        }
+        
 
-    /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-    autocomplete(document.getElementById("myInput"), organizations);
+
+
+
+    /*initiate the autocomplete function on the "orgInput" element, and pass along the countries array as possible autocomplete values:*/
+    autocomplete(document.getElementById("orgInput"), organizations);
 </script>
 
 
@@ -508,64 +563,4 @@
 
 
 
-<style>
-   
 
-    body {
-        font: 16px Arial;
-    }
-
-    /*the container must be positioned relative:*/
-    .autocomplete {
-        position: relative;
-        display: inline-block;
-    }
-
-    input {
-        border: 1px solid transparent;
-        background-color: #f1f1f1;
-        padding: 10px;
-        font-size: 16px;
-    }
-
-        input[type=text] {
-            background-color: #f1f1f1;
-            width: 100%;
-        }
-
-        input[type=submit] {
-            background-color: DodgerBlue;
-            color: #fff;
-            cursor: pointer;
-        }
-
-    .autocomplete-items {
-        position: absolute;
-        border: 1px solid #d4d4d4;
-        border-bottom: none;
-        border-top: none;
-        z-index: 99;
-        /*position the autocomplete items to be the same width as the container:*/
-        top: 100%;
-        left: 0;
-        right: 0;
-    }
-
-        .autocomplete-items div {
-            padding: 10px;
-            cursor: pointer;
-            background-color: #fff;
-            border-bottom: 1px solid #d4d4d4;
-        }
-
-            /*when hovering an item:*/
-            .autocomplete-items div:hover {
-                background-color: #e9e9e9;
-            }
-
-    /*when navigating through the items using the arrow keys:*/
-    .autocomplete-active {
-        background-color: DodgerBlue !important;
-        color: #ffffff;
-    }
-</style>

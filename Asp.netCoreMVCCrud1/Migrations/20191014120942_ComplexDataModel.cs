@@ -78,8 +78,8 @@ namespace Asp.netCoreMVCCrud1.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.Sql("INSERT INTO Industries VALUES('Default', 'Default', 1) ");
-            migrationBuilder.Sql("INSERT INTO Projects VALUES('Default', 'Default', 'Default', '01/02/2019', 'FALSE', 1, 'default', 1, 1, 'default', 'default') ");
+           // migrationBuilder.Sql("INSERT INTO Industries VALUES('Default', 'Default', 1) ");
+           // migrationBuilder.Sql("INSERT INTO Projects VALUES('Default', 'Default', 'Default', DateTime.Now, 'FALSE', 1, 'default', 1, 1, 'default', 'default') ");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_IndustryId",

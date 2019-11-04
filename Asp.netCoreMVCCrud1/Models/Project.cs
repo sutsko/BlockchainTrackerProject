@@ -20,9 +20,10 @@ namespace Asp.netCoreMVCCrud1.Models
         [DisplayName("Article Description")]
         public string ArticleDescription { get; set; }
 
-        //Hvis det ikke virker
         [DisplayName("Article Date")]
-        public string ArticleDate { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime ArticleDate { get; set; }
         public string Confidentiality { get; set; }
         
         [ForeignKey("Organization")]
