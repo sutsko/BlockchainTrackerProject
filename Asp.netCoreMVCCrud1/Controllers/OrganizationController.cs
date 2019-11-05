@@ -22,7 +22,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
         // GET: Organization
         public async Task<IActionResult> Index()
         {
-            List<Organization> hej = GetOrgList();
+            
             return View(await _context.Organizations.ToListAsync());
         }
 

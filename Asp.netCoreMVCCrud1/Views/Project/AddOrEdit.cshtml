@@ -94,27 +94,26 @@
                     <!-- <input type="date" class="form-control" id="date" name="date" asp-for="ArticleDate" /> -->
                     <span asp-validation-for="ArticleDate" class="text-danger"></span>
                 </div>
+                
                 <div class="form-group col-md-4">
-                    <label asp-for="Confidentiality" class="control-label"></label>
-                    <select asp-for="Confidentiality" class="browser-default custom-select col-md-auto">
-                        <option selected>Is this confidential?</option>
-                        <!--Add the for each from previous drop downs later-->
-                        <option>Non-confidential</option>
-                        <option>Confidential</option>
-                    </select>
-                    <span asp-validation-for="Confidentiality" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                   
+
                     <label asp-for="OrganizationId" class="control-label">Organization: </label>
                     <input id="orgInput" type="text" name="myOrganization" placeholder="Organization" onkeyup="getId()" class="form-control" />
                     <input asp-for="OrganizationId" value="0" id="hiddenOrgValue" hidden readonly />
 
-
                 </div>
+
                 <div class="form-group col-md-4">
+                    <label asp-for="TechnicalVendor" class="control-label"></label>
+                    <input asp-for="TechnicalVendor" class="form-control" />
+                    <span asp-validation-for="TechnicalVendor" class="text-danger"></span>
+                </div>
+
+            </div>
+            <div class="form-row">
+                
+                
+                <div class="form-group col-md-6">
                     <label asp-for="Country" class="control-label"></label>
                     <!--Expand for list of all countries-->
                     <select asp-for="Country" class="browser-default custom-select col-md-auto">
@@ -362,7 +361,7 @@
                     <span asp-validation-for="Country" class="text-danger"></span>
 
                 </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-6">
                     <label asp-for="IndustryId" class="control-label"></label>
                     <select asp-for="IndustryId" class="browser-default custom-select col-md-auto">
                         <option selected>Pick the Industry</option>
@@ -376,7 +375,7 @@
                 </div>
             </div>
             <div class="form-row">
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-6">
                     <label asp-for="UseCaseId" class="control-label"></label>
                     <select asp-for="UseCaseId" class="browser-default custom-select col-md-auto">
                         <option selected>Pick the Use Case</option>
@@ -388,7 +387,7 @@
                     </select>
                     <!--<span asp-validation-for="UseCaseId" class="text-danger"></span>-->
                 </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-6">
                     <label asp-for="Maturity" class="control-label"></label>
                     <select asp-for="Maturity" class="browser-default custom-select col-md-auto">
                         <option selected>Pick the Maturity</option>
@@ -400,11 +399,7 @@
                     </select>
                     <span asp-validation-for="Maturity" class="text-danger"></span>
                 </div>
-                <div class="form-group col-md-4">
-                    <label asp-for="TechnicalVendor" class="control-label"></label>
-                    <input asp-for="TechnicalVendor" class="form-control" />
-                    <span asp-validation-for="TechnicalVendor" class="text-danger"></span>
-                </div>
+               
             </div>
             <div class="form-row">
                 <div class="form-group col-md-6">

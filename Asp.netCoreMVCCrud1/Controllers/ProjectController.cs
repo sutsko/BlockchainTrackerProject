@@ -23,14 +23,52 @@ namespace Asp.netCoreMVCCrud1.Controllers
         {
             _context = context;
             _oc = new OrganizationController(_context);
-
-
+            _ic = new IndustryController(_context);
+            _uc = new UsecaseController(_context);
     }
 
         // GET: Project
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Projects.ToListAsync());
+
+            //1. Hente hele listen af alle projekter
+           List <Project> listOfProjects = await _context.Projects.ToListAsync();
+
+            //2. Hente hele listen af usecases, organisationer og industrier  
+            List<Organization> listOfOrganizations = _oc.GetOrgList();
+            List<Usecase> listOfUsecases = _uc.GetUsecList();
+            List<Industry> listOfIndustries = _ic.GetInduList();
+
+            //3. Lave mappings over dem - altså fra punkt 2 og deres id 
+            Dictionary<int, string> organizationMap = new Dictionary<int, string>();
+            Dictionary<int, string> usecaseMap = new Dictionary<int, string>();
+            Dictionary<int, string> industryMap = new Dictionary<int, string>();
+
+            foreach (Organization o in listOfOrganizations)
+            {
+                organizationMap.Add(o.OrganizationId, o.OrganizationName);
+            }
+
+            foreach (Usecase uc in listOfUsecases)
+            {
+                usecaseMap.Add(uc.UsecaseId, uc.UsecaseName);
+            }
+
+            foreach (Industry i in listOfIndustries)
+            {
+                industryMap.Add(i.IndustryId, i.IndustryName);
+            }
+
+            //4. På baggrund af nøglen, der skal være ID'et, tilføjes for each til projekterne.   
+            foreach(Project p in listOfProjects)
+            {
+                p.Organization.OrganizationName = organizationMap[p.OrganizationId];
+                p.Industry.IndustryName = industryMap[p.IndustryId];
+                p.Usecase.UsecaseName = usecaseMap[p.UseCaseId];
+            }
+
+
+            return View(listOfProjects);
         }
 
         // GET: Project/Details/5
@@ -105,6 +143,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
                                 //Check if the organization is a new one. 
                                 if (project.OrganizationId==0)
                                 {
+                                    //Adding the organization to the database, and then seeting the id of that organization to the 
                                     Organization preliminaryOrg = new Organization();
                                     preliminaryOrg.OrganizationName = myOrganization;
                                     preliminaryOrg.OrganizationType = 1;

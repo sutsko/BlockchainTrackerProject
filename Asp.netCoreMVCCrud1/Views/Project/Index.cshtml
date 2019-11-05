@@ -26,9 +26,6 @@
                 @Html.DisplayNameFor(model => model.ArticleDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Confidentiality)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.OrganizationId)
             </th>
             <th>
@@ -66,20 +63,18 @@
             <td>
                 @Html.DisplayFor(modelItem => item.ArticleDate)
             </td>
+            
             <td>
-                @Html.DisplayFor(modelItem => item.Confidentiality)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrganizationId)
+                @Html.DisplayFor(modelItem => item.Organization.OrganizationName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Country)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IndustryId)
+                @Html.DisplayFor(modelItem => item.Industry.IndustryName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UseCaseId)
+                @Html.DisplayFor(modelItem => item.Usecase.UsecaseName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Maturity)
