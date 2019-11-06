@@ -6,7 +6,7 @@ using Asp.netCoreMVCCrud1.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +33,7 @@ namespace Asp.netCoreMVCCrud1
             });
 
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddRazorPages();
 
             // Use SQL Database if in Azure, otherwise, use local
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
@@ -50,7 +50,7 @@ namespace Asp.netCoreMVCCrud1
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -63,14 +63,13 @@ namespace Asp.netCoreMVCCrud1
 
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseRouting();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllerRoute( "default",
                     //This is setting the default controller and which page, i guess, that it will load at start
                     //So this will select "ProjectController" i guess. By deafualt we are in the projectcontroller and index action method 
-                    template: "{controller=Project}/{action=Index}/{id?}");
+                     "{controller=Project}/{action=Index}/{id?}");
             });
         }
     }

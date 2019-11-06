@@ -67,7 +67,6 @@ namespace Asp.netCoreMVCCrud1.Controllers
                 p.Usecase.UsecaseName = usecaseMap[p.UseCaseId];
             }
 
-
             return View(listOfProjects);
         }
 
