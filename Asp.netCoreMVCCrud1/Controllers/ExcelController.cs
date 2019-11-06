@@ -1,22 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Asp.netCoreMVCCrud1.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
 
-namespace SampleWebApp.Core.Controllers
+namespace Asp.netCoreMVCCrud1.Controllers
 {
-    public class HomeController : Controller
+    public class ExcelController : Controller
     {
         private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public HomeController(IWebHostEnvironment hostingEnvironment)
+        public ExcelController (IWebHostEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
         }
@@ -24,7 +26,7 @@ namespace SampleWebApp.Core.Controllers
         /// <summary>
         /// /Home/FileReport
         /// </summary>
-        public IActionResult FileReport()
+        public VirtualFileResult FileReport()
         {
             var fileDownloadName = "report.xlsx";
             var reportsFolder = "reports";
@@ -35,90 +37,12 @@ namespace SampleWebApp.Core.Controllers
             }
             return File($"~/{reportsFolder}/{fileDownloadName}", XlsxContentType, fileDownloadName);
         }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        /// <summary>
-        /// An in-memory report
-        /// </summary>
-        public IActionResult InMemoryReport()
-        {
-            byte[] reportBytes;
-            using (var package = createExcelPackage())
-            {
-                reportBytes = package.GetAsByteArray();
-            }
-
-            return File(reportBytes, XlsxContentType, "report.xlsx");
-        }
-
-
-        /// <summary>
-        /// /Home/DataTableReport
-        /// </summary>
-        public IActionResult DataTableReport()
-        {
-            var dataTable = new DataTable("Users");
-            dataTable.Columns.Add("Name", typeof(string));
-            dataTable.Columns.Add("Age", typeof(int));
-            var rnd = new Random();
-            for (var i = 0; i < 100; i++)
-            {
-                var row = dataTable.NewRow();
-                row["Name"] = $"User {i}";
-                row["Age"] = rnd.Next(20, 100);
-                dataTable.Rows.Add(row);
-            }
-
-            using (var package = new ExcelPackage())
-            {
-                var worksheet = package.Workbook.Worksheets.Add("Excel Test");
-                worksheet.Cells["A1"].LoadFromDataTable(dataTable, PrintHeaders: true);
-                for (var col = 1; col < dataTable.Columns.Count + 1; col++)
-                {
-                    worksheet.Column(col).AutoFit();
-                }
-                return File(package.GetAsByteArray(), XlsxContentType, "report.xlsx");
-            }
-        }
-
-        private string readExcelPackage(FileInfo fileInfo, string worksheetName)
-        {
-            using (var package = new ExcelPackage(fileInfo))
-            {
-                return readExcelPackageToString(package, package.Workbook.Worksheets[worksheetName]);
-            }
-        }
-
-        private string readExcelPackageToString(ExcelPackage package, ExcelWorksheet worksheet)
-        {
-            var rowCount = worksheet.Dimension?.Rows;
-            var colCount = worksheet.Dimension?.Columns;
-
-            if (!rowCount.HasValue || !colCount.HasValue)
-            {
-                return string.Empty;
-            }
-
-            var sb = new StringBuilder();
-            for (int row = 1; row <= rowCount.Value; row++)
-            {
-                for (int col = 1; col <= colCount.Value; col++)
-                {
-                    sb.AppendFormat("{0}\t", worksheet.Cells[row, col].Value);
-                }
-                sb.Append(Environment.NewLine);
-            }
-            return sb.ToString();
-        }
+   
 
         private ExcelPackage createExcelPackage()
         {
             var package = new ExcelPackage();
-            //This could maybe be made specific for the user who downloads it
+            //This could maybe be made specific for the user who downloads it.
             package.Workbook.Properties.Title = "Salary Report";
             package.Workbook.Properties.Author = "Vahid N.";
             package.Workbook.Properties.Subject = "Salary Report";
@@ -173,5 +97,7 @@ namespace SampleWebApp.Core.Controllers
 
             return package;
         }
+
+        
     }
 }

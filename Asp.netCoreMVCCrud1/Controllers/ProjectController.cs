@@ -7,7 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Asp.netCoreMVCCrud1.Models;
 using Microsoft.EntityFrameworkCore.Storage;
-
+using OfficeOpenXml;
+using System.IO;
+using System.Data;
+using OfficeOpenXml.Table;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Asp.netCoreMVCCrud1.Controllers
 {
@@ -18,13 +22,17 @@ namespace Asp.netCoreMVCCrud1.Controllers
         private SectorController _sc;
         private OrganizationController _oc;
         private UsecaseController _uc;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public ProjectController(ProjectContext context)
+
+        public ProjectController(ProjectContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
             _oc = new OrganizationController(_context);
             _ic = new IndustryController(_context);
             _uc = new UsecaseController(_context);
+            _hostingEnvironment = hostingEnvironment;
+            
     }
 
         // GET: Project
@@ -285,6 +293,17 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             return p;
         }
+
+        //This will effectively let the user download an excel spreadsheet. 
+        public IActionResult FileReport()
+        {
+            ExcelController _ec = new ExcelController(_hostingEnvironment);
+            VirtualFileResult file = _ec.FileReport();
+            return file;
+        }
+
+
+
 
     }
 }
