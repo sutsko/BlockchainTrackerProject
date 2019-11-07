@@ -4,12 +4,16 @@
 @{
     ViewData["Title"] = "Index";
 }
+    <div class="form-row" style="display:flex; justify-content:space-between">
+        <h4></h4>
 
-<h4>Project Register </h4>
+        <a asp-action="FileReport" asp-controller="Project">
+            <i class="fa fa-file-excel" style="font-size:30px;color:forestgreen">  <i class="fa fa-download"></i></i>
+            
+        </a>
+    </div>
 
-<div>
-        <a asp-action="FileReport" asp-controller="Project">Create a file report</a>
-</div>
+
 
 <table class="table table-hover">
     <thead>
@@ -96,3 +100,5 @@
 }
     </tbody>
 </table>
+
+<script src='https://kit.fontawesome.com/a076d05399.js'></script>

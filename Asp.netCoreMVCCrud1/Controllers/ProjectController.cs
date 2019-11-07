@@ -18,11 +18,12 @@ namespace Asp.netCoreMVCCrud1.Controllers
     public class ProjectController : Controller
     {
         private  ProjectContext _context;
-        public IndustryController _ic;
+        private IndustryController _ic;
         private SectorController _sc;
         private OrganizationController _oc;
         private UsecaseController _uc;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        
 
 
         public ProjectController(ProjectContext context, IWebHostEnvironment hostingEnvironment)
@@ -38,42 +39,10 @@ namespace Asp.netCoreMVCCrud1.Controllers
         // GET: Project
         public async Task<IActionResult> Index()
         {
-
             //1. Hente hele listen af alle projekter
            List <Project> listOfProjects = await _context.Projects.ToListAsync();
 
-            //2. Hente hele listen af usecases, organisationer og industrier  
-            List<Organization> listOfOrganizations = _oc.GetOrgList();
-            List<Usecase> listOfUsecases = _uc.GetUsecList();
-            List<Industry> listOfIndustries = _ic.GetInduList();
-
-            //3. Lave mappings over dem - altså fra punkt 2 og deres id 
-            Dictionary<int, string> organizationMap = new Dictionary<int, string>();
-            Dictionary<int, string> usecaseMap = new Dictionary<int, string>();
-            Dictionary<int, string> industryMap = new Dictionary<int, string>();
-
-            foreach (Organization o in listOfOrganizations)
-            {
-                organizationMap.Add(o.OrganizationId, o.OrganizationName);
-            }
-
-            foreach (Usecase uc in listOfUsecases)
-            {
-                usecaseMap.Add(uc.UsecaseId, uc.UsecaseName);
-            }
-
-            foreach (Industry i in listOfIndustries)
-            {
-                industryMap.Add(i.IndustryId, i.IndustryName);
-            }
-
-            //4. På baggrund af nøglen, der skal være ID'et, tilføjes for each til projekterne.   
-            foreach(Project p in listOfProjects)
-            {
-                p.Organization.OrganizationName = organizationMap[p.OrganizationId];
-                p.Industry.IndustryName = industryMap[p.IndustryId];
-                p.Usecase.UsecaseName = usecaseMap[p.UseCaseId];
-            }
+            listOfProjects = mappedProjects(listOfProjects);
 
             return View(listOfProjects);
         }
@@ -295,14 +264,56 @@ namespace Asp.netCoreMVCCrud1.Controllers
         }
 
         //This will effectively let the user download an excel spreadsheet. 
-        public IActionResult FileReport()
+        public async Task<IActionResult> FileReportAsync()
         {
+            //1. Hente hele listen af alle projekter og map de tilhørende organization, industry og usecase
+            List<Project> listOfProjects = await _context.Projects.ToListAsync();
+            listOfProjects = mappedProjects(listOfProjects);
+
+            //Send the list to the excelcontroller to create the package
             ExcelController _ec = new ExcelController(_hostingEnvironment);
-            VirtualFileResult file = _ec.FileReport();
+            VirtualFileResult file = _ec.FileReport(listOfProjects); //Remove listofprojects to make it different
             return file;
         }
 
 
+        public List<Project> mappedProjects(List<Project> listOfProjects)
+        {
+            //2. Hente hele listen af usecases, organisationer og industrier  
+            List<Organization> listOfOrganizations = _oc.GetOrgList();
+            List<Usecase> listOfUsecases = _uc.GetUsecList();
+            List<Industry> listOfIndustries = _ic.GetInduList();
+
+            //3. Lave mappings over dem - altså fra punkt 2 og deres id 
+            Dictionary<int, string> organizationMap = new Dictionary<int, string>();
+            Dictionary<int, string> usecaseMap = new Dictionary<int, string>();
+            Dictionary<int, string> industryMap = new Dictionary<int, string>();
+
+            foreach (Organization o in listOfOrganizations)
+            {
+                organizationMap.Add(o.OrganizationId, o.OrganizationName);
+            }
+
+            foreach (Usecase uc in listOfUsecases)
+            {
+                usecaseMap.Add(uc.UsecaseId, uc.UsecaseName);
+            }
+
+            foreach (Industry i in listOfIndustries)
+            {
+                industryMap.Add(i.IndustryId, i.IndustryName);
+            }
+
+            //4. På baggrund af nøglen, der skal være ID'et, tilføjes for each til projekterne.   
+            foreach (Project p in listOfProjects)
+            {
+                p.Organization.OrganizationName = organizationMap[p.OrganizationId];
+                p.Industry.IndustryName = industryMap[p.IndustryId];
+                p.Usecase.UsecaseName = usecaseMap[p.UseCaseId];
+            }
+
+            return listOfProjects;
+        }
 
 
     }
