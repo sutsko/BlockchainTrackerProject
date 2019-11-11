@@ -9,6 +9,16 @@ namespace Asp.netCoreMVCCrud1.Models
 {
     public class Organization
     {
+
+        public Organization(string organizationName)
+        {
+            OrganizationName = organizationName;
+        }
+        public Organization()
+        {
+             
+        }
+
         [Key]
         public int OrganizationId {get; set; }
         [DisplayName("Organization name")]
@@ -16,4 +26,6 @@ namespace Asp.netCoreMVCCrud1.Models
         [DisplayName("Organization type")]
         public int OrganizationType {get; set; }
     }
+
+    
 }

@@ -8,6 +8,10 @@ namespace Asp.netCoreMVCCrud1.Models
 {
     public class Usecase
     {
+        public Usecase(string usecaseName)
+        {
+            UsecaseName = usecaseName;
+        }
         [Key]
         public int UsecaseId { get; set; }
         public string UsecaseName { get; set; }

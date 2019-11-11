@@ -10,6 +10,11 @@ namespace Asp.netCoreMVCCrud1.Models
 {
     public class Industry
     {
+        public Industry(string industryName)
+        {
+            IndustryName = industryName;
+        }
+
         [Key]
         public int IndustryId { get; set; }
         public string IndustryName { get; set; }

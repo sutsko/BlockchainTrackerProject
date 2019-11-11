@@ -9,9 +9,11 @@ using Asp.netCoreMVCCrud1.Models;
 using Microsoft.EntityFrameworkCore.Storage;
 using OfficeOpenXml;
 using System.IO;
-using System.Data;
 using OfficeOpenXml.Table;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.Data;
+using System.Threading;
 
 namespace Asp.netCoreMVCCrud1.Controllers
 {
@@ -24,8 +26,6 @@ namespace Asp.netCoreMVCCrud1.Controllers
         private UsecaseController _uc;
         private readonly IWebHostEnvironment _hostingEnvironment;
         
-
-
         public ProjectController(ProjectContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
@@ -205,6 +205,81 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return View(project);
         }
 
+
+        [HttpPost("import")]
+        public async Task<IActionResult> Import(IFormFile formFile, CancellationToken cancellationToken)
+        {
+            if (formFile == null || formFile.Length <= 0)
+            {
+                return RedirectToAction(nameof(Index));
+                //INsert some alert here, saying there was no file
+            }
+
+            if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction(nameof(Index));
+                //INsert some alert here, syaing that the format is wrong. 
+            }
+
+            var list = new List<Project>();
+
+            using (var stream = new MemoryStream())
+            {
+                await formFile.CopyToAsync(stream, cancellationToken);
+
+                using (var package = new ExcelPackage(stream))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                    var rowCount = worksheet.Dimension.Rows;
+
+                  
+
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        long dateNum = long.Parse(worksheet.Cells[row, 4].Value.ToString());
+                        DateTime result = DateTime.FromOADate(dateNum);
+                       
+                        list.Add(new Project
+                        {
+                            ArticleHeadline = worksheet.Cells[row, 1].Value.ToString().Trim(),
+                            ArticleUrl = worksheet.Cells[row, 2].Value.ToString().Trim(),
+                            ArticleDescription = worksheet.Cells[row, 3].Value.ToString().Trim(),
+                            ArticleDate = result,
+                            Organization = new Organization(worksheet.Cells[row, 5].Value.ToString().Trim()),
+                            Country = worksheet.Cells[row, 6].Value.ToString().Trim(),
+                            Industry = new Industry(worksheet.Cells[row, 7].Value.ToString().Trim()),
+                            Usecase = new Usecase(worksheet.Cells[row, 8].Value.ToString().Trim()),
+                            Maturity = worksheet.Cells[row, 9].Value.ToString().Trim(),
+                            TechnicalVendor = worksheet.Cells[row, 10].Value.ToString().Trim(),
+                        });
+                    }
+
+                }
+            }
+
+            List<Project> revisedProjectList = await mappedProjectsNameIsKey(list);
+            if (revisedProjectList == null)
+            {
+                return RedirectToAction(nameof(Index));
+                //make some error statement to ui . LATER
+            } else
+            {
+                foreach (Project p in revisedProjectList)
+                {
+                    p.Industry = null;
+                    p.Organization = null;
+                    p.Usecase = null;
+                        _context.Add(p);
+                    
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+
         // GET: Project/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -216,25 +291,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        /*
-        // GET: Project/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(m => m.ProjectId == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            return View(project);
-        }
-        */
+  
 
         // POST: Project/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -273,9 +330,9 @@ namespace Asp.netCoreMVCCrud1.Controllers
             //Send the list to the excelcontroller to create the package
             ExcelController _ec = new ExcelController(_hostingEnvironment);
             VirtualFileResult file = _ec.FileReport(listOfProjects); //Remove listofprojects to make it different
+            
             return file;
         }
-
 
         public List<Project> mappedProjects(List<Project> listOfProjects)
         {
@@ -314,6 +371,89 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             return listOfProjects;
         }
+
+        public async Task<List<Project>> mappedProjectsNameIsKey(List<Project> listOfProjects)
+        {
+            //1. Hente hele listen af usecases, organisationer og industrier  
+            List<Organization> listOfOrganizations = _oc.GetOrgList();
+            List<Usecase> listOfUsecases = _uc.GetUsecList();
+            List<Industry> listOfIndustries = _ic.GetInduList();
+
+            //3. Lave mappings over dem. Navnet på en org, ind, eller use skal være map-key, hvor id'et er valu.  
+            Dictionary<string, int> organizationMap = new Dictionary<string, int>();
+            Dictionary<string, int> usecaseMap = new Dictionary<string, int>();
+            Dictionary<string, int> industryMap = new Dictionary<string, int>();
+
+            foreach (Organization o in listOfOrganizations)
+            {
+                if (!organizationMap.TryGetValue(o.OrganizationName, out int indResult))
+                {
+                    organizationMap.Add(o.OrganizationName, o.OrganizationId);
+                }
+
+            }
+
+            foreach (Usecase uc in listOfUsecases)
+            {
+
+                if (!usecaseMap.TryGetValue(uc.UsecaseName, out int indResult))
+                {
+                    usecaseMap.Add(uc.UsecaseName, uc.UsecaseId);
+                }
+
+            }
+
+            foreach (Industry i in listOfIndustries)
+            {
+
+                if (!industryMap.TryGetValue(i.IndustryName, out int indResult))
+                {
+                    industryMap.Add(i.IndustryName, i.IndustryId);
+                }
+            }
+
+            //4. På baggrund af nøglen, der skal være navnet, tilføjes for each til projekterne.   
+            foreach (Project p in listOfProjects)
+            {
+                if (organizationMap.TryGetValue(p.Organization.OrganizationName, out int orgResult))
+                {
+                    p.OrganizationId = orgResult;
+                }
+                else
+                {
+                    //Adding the organization to the database, and then seeting the id of that organization to the 
+                    Organization preliminaryOrg = new Organization();
+                    preliminaryOrg.OrganizationName = p.Organization.OrganizationName;
+                    preliminaryOrg.OrganizationType = 1;
+                    await _oc.Create(preliminaryOrg);
+
+                    p.OrganizationId = preliminaryOrg.OrganizationId;
+                }
+
+                if (industryMap.TryGetValue(p.Industry.IndustryName, out int indResult))
+                {
+                    p.IndustryId = indResult;
+                }
+                else
+                {
+                    Console.WriteLine("Could not find the specified key. Please verify that the industry name is an existing one. It must be completely accurate");
+                    return null;
+                }
+
+                if (usecaseMap.TryGetValue(p.Usecase.UsecaseName, out int useResult))
+                {
+                    p.UseCaseId = useResult;
+                }
+                else
+                {
+                    Console.WriteLine("Could not find the specified key. Please verify that the usecase name is an existing one. It must be completely accurate");
+                    return null;
+                }
+            }
+
+            return listOfProjects;
+        }
+
 
 
     }
