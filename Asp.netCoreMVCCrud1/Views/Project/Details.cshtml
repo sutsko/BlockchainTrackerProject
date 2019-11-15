@@ -35,16 +35,11 @@
             @Html.DisplayFor(model => model.ArticleDate)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Confidentiality)
+            @Html.DisplayNameFor(model => model.Organization.OrganizationName)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Confidentiality)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrganizationId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrganizationId)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Organization.OrganizationName)
+            </dt>)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Country)
@@ -53,16 +48,16 @@
             @Html.DisplayFor(model => model.Country)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IndustryId)
+            @Html.DisplayNameFor(model => model.Industry.IndustryName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IndustryId)
+            @Html.DisplayFor(model => model.Industry.IndustryName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UseCaseId)
+            @Html.DisplayNameFor(model => model.Usecase.UsecaseName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UseCaseId)
+            @Html.DisplayFor(model => model.Usecase.UsecaseName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Maturity)

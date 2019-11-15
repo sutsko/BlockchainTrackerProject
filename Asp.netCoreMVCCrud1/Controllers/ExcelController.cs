@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Asp.netCoreMVCCrud1.Models;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
-using System.Linq;
-using System.Data.SqlClient;
+
 
 namespace Asp.netCoreMVCCrud1.Controllers
 {
     public class ExcelController : Controller
     {
-        private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         private readonly IWebHostEnvironment _hostingEnvironment;
 
 
@@ -29,19 +21,16 @@ namespace Asp.netCoreMVCCrud1.Controllers
         /// <summary>
         /// /Home/FileReport
         /// </summary>
-        public VirtualFileResult FileReport(List<Project> projects)
+        public FileContentResult FileReport(List<Project> projects)
         {
-            var fileDownloadName = "report.xlsx";
-            var reportsFolder = "reports";
-
-            using (var package = createExcelPackage(projects))
+          
+            using (var package = CreateExcelPackage(projects))
             {
-                package.SaveAs(new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, reportsFolder, fileDownloadName)));
+                return File(package.GetAsByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Reports.xlsx");
             }
-            return File($"~/{reportsFolder}/{fileDownloadName}", XlsxContentType, fileDownloadName);
         }
 
-        private ExcelPackage createExcelPackage(List<Project> projects )
+        private ExcelPackage CreateExcelPackage(List<Project> projects )
         {
             var package = new ExcelPackage();
             //This could maybe be made specific for the user who downloads it.
@@ -92,11 +81,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             var tbl = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: projects.Count+2, toColumn: 10), "Data");
             tbl.ShowHeader = true;
             tbl.TableStyle = TableStyles.Dark9;
-            //tbl.ShowTotal = true;
-            //tbl.Columns[3].DataCellStyleName = dataCellStyleName;
-            //tbl.Columns[3].TotalsRowFunction = RowFunctions.Sum;
-            
-
+           
             // AutoFitColumns
             worksheet.Cells[1, 1, projects.Count+2, 10].AutoFitColumns();
 
@@ -104,48 +89,6 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return package;
         }
 
-        //From here begins the code where data is uploaded to SQL fromn an excel spreadsheet. 
-        public ExcelPackage fileUpload(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                return null;
-            }
-
-            using (var memoryStream = new MemoryStream())
-            {
-               file.CopyToAsync(memoryStream).ConfigureAwait(false);
-
-                using (var package = new ExcelPackage(memoryStream))
-                {
-                    var worksheet = package.Workbook.Worksheets[1]; // Tip: To access the first worksheet, try index 1, not 0
-                    return package;
-                }
-            }
-        }
-    
-
-
-    public DataTable ToDataTable(ExcelPackage pack)
-        {
-            ExcelWorksheet workSheet = pack.Workbook.Worksheets.First();
-            DataTable table = new DataTable();
-            foreach (var firstRowCell in workSheet.Cells[1, 1, 1, workSheet.Dimension.End.Column])
-            {
-                table.Columns.Add(firstRowCell.Text);
-            }
-            for (var rowNumber = 2; rowNumber <= workSheet.Dimension.End.Row; rowNumber++)
-            {
-                var row = workSheet.Cells[rowNumber, 1, rowNumber, workSheet.Dimension.End.Column];
-                var newRow = table.NewRow();
-                foreach (var cell in row)
-                {
-                    newRow[cell.Start.Column - 1] = cell.Text;
-                }
-                table.Rows.Add(newRow);
-            }
-            return table;
-        }
     
     }
 

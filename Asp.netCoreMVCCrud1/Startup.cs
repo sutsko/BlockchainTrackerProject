@@ -47,6 +47,7 @@ namespace Asp.netCoreMVCCrud1
             // Automatically perform database migration
             services.BuildServiceProvider().GetService<ProjectContext>().Database.Migrate();
 
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,6 +62,7 @@ namespace Asp.netCoreMVCCrud1
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseRouting();

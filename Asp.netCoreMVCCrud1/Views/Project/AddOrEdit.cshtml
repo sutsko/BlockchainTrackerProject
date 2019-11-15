@@ -98,8 +98,8 @@
                 <div class="form-group col-md-4">
 
                     <label asp-for="OrganizationId" class="control-label">Organization: </label>
-                    <input id="orgInput" type="text" name="myOrganization" placeholder="Organization" onkeyup="getId()" class="form-control" />
-                    <input asp-for="OrganizationId" value="0" id="hiddenOrgValue" hidden readonly />
+                    <input asp-for="Organization.OrganizationName" id="orgInput" type="text" name="myOrganization" placeholder="Organization" onload="disableKeyUpIfOrgIDExist" onkeyup="getId()" class="form-control" />
+                    <input asp-for="OrganizationId"  id="hiddenOrgValue"  hidden readonly />
 
                 </div>
 
@@ -542,6 +542,11 @@
         document.getElementById('datePicker').value = new Date().toDateInputValue();
         }
         
+    function disableKeyUpIfOrgIDExist() {
+        if (document.getElementById("hiddenOrgValue") != "0") {
+            document.getElementById("orgInput").onkeyup = null;
+        }
+    }
 
 
 

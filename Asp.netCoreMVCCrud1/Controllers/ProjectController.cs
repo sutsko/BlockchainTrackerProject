@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Asp.netCoreMVCCrud1.Models;
 using Microsoft.EntityFrameworkCore.Storage;
 using OfficeOpenXml;
 using System.IO;
-using OfficeOpenXml.Table;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using System.Data;
 using System.Threading;
 
 namespace Asp.netCoreMVCCrud1.Controllers
@@ -36,6 +33,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             
     }
 
+        [RequireHttps]
         // GET: Project
         public async Task<IActionResult> Index()
         {
@@ -62,6 +60,13 @@ namespace Asp.netCoreMVCCrud1.Controllers
                 return NotFound();
             }
 
+            List<Project> listForMapPurpose = new List<Project>();
+            listForMapPurpose.Add(project);
+            listForMapPurpose = mappedProjects(listForMapPurpose);
+            project = listForMapPurpose[0];
+
+
+
             return View(project);
         }
 
@@ -69,28 +74,42 @@ namespace Asp.netCoreMVCCrud1.Controllers
         //When the asp-action="AddOrEdit" in index.cshtml is called on the client side, this function will be run
         public IActionResult AddOrEdit(int id = 0)
         {
-            var p = ProjectWithLists();
+            
 
             if (id == 0)
             {
                 //https://stackoverflow.com/questions/31647259/populate-dropdownlist-in-mvc-5
-                p.ArticleDate = DateTime.Today;
+                var p = ProjectWithLists();
 
+                p.ArticleDate = DateTime.Today;
 
                 //This will return the view "addOrEdit" from the folder Views--> Project --> AddOrEdit
                 return View(p);
             }
             else {
             
-                Project project_from_id = _context.Projects.Find(id);
-                project_from_id.IndustryList = p.IndustryList;
-                project_from_id.OrganizationList = p.OrganizationList;
-                project_from_id.UsecaseList = p.UsecaseList;
+                Project project_from_id = listAndMapSingleProject(_context.Projects.Find(id));
 
-            //this function will ask the database to find the project with the corresponding id. 
-            return View(project_from_id); 
+                //this function will ask the database to find the project with the corresponding id. 
+                return View(project_from_id); 
             }
                 
+        }
+
+        private Project listAndMapSingleProject(Project project_from_id)
+        {
+            var p = ProjectWithLists();
+
+            project_from_id.IndustryList = p.IndustryList;
+            project_from_id.OrganizationList = p.OrganizationList;
+            project_from_id.UsecaseList = p.UsecaseList;
+
+            List<Project> listForMapPurpose = new List<Project>();
+            listForMapPurpose.Add(project_from_id);
+            listForMapPurpose = mappedProjects(listForMapPurpose);
+            project_from_id = listForMapPurpose[0];
+
+            return (project_from_id);
         }
 
         // POST: Project/Create
@@ -130,7 +149,13 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
                                 _context.Add(project); //This is an insert operation to the database. 
                             }
-                            else { 
+                            else {
+                                project.Organization = new Organization();
+                                project.Organization.OrganizationId = project.OrganizationId;
+                                project.Organization.OrganizationName = myOrganization;
+                                project.Organization.OrganizationType = 0;
+
+                                _context.Organizations.Update(project.Organization);
                                 _context.Update(project); //This is therefore an update operation to the database, since the projectID is already existing. 
                             }
                             
@@ -152,6 +177,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             return View(project);
         }
+
 
         // GET: Project/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -231,9 +257,6 @@ namespace Asp.netCoreMVCCrud1.Controllers
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                     var rowCount = worksheet.Dimension.Rows;
-
-                  
-
 
                     for (int row = 2; row <= rowCount; row++)
                     {
@@ -329,7 +352,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             //Send the list to the excelcontroller to create the package
             ExcelController _ec = new ExcelController(_hostingEnvironment);
-            VirtualFileResult file = _ec.FileReport(listOfProjects); //Remove listofprojects to make it different
+            FileContentResult file = _ec.FileReport(listOfProjects); //Remove listofprojects to make it different
             
             return file;
         }
@@ -340,6 +363,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             List<Organization> listOfOrganizations = _oc.GetOrgList();
             List<Usecase> listOfUsecases = _uc.GetUsecList();
             List<Industry> listOfIndustries = _ic.GetInduList();
+
 
             //3. Lave mappings over dem - altså fra punkt 2 og deres id 
             Dictionary<int, string> organizationMap = new Dictionary<int, string>();
