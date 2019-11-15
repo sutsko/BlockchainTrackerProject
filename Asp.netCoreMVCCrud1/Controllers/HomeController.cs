@@ -28,49 +28,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return View();
         }
 
-       
 
-        public async Task<IActionResult> FileUpload(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                return RedirectToAction("Index");
-            }
-
-            using (var memoryStream = new MemoryStream())
-            {
-                await file.CopyToAsync(memoryStream).ConfigureAwait(false);
-
-                using (var package = new ExcelPackage(memoryStream))
-                {
-                    var worksheet = package.Workbook.Worksheets["Employee"]; // Tip: To access the first worksheet, try index 1, not 0
-                    return Content(readExcelPackageToString(package, worksheet));
-                    //return RedirectToAction(nameof(Index));
-                }
-            }
-        }
-
-        private string readExcelPackageToString(ExcelPackage package, ExcelWorksheet worksheet)
-        {
-            var rowCount = worksheet.Dimension?.Rows;
-            var colCount = worksheet.Dimension?.Columns;
-
-            if (!rowCount.HasValue || !colCount.HasValue)
-            {
-                return string.Empty;
-            }
-
-            var sb = new StringBuilder();
-            for (int row = 1; row <= rowCount.Value; row++)
-            {
-                for (int col = 1; col <= colCount.Value; col++)
-                {
-                    sb.AppendFormat("{0}\t", worksheet.Cells[row, col].Value);
-                }
-                sb.Append(Environment.NewLine);
-            }
-            return sb.ToString();
-        }
 
     }
 }
