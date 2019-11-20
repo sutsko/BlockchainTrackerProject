@@ -20,6 +20,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
     {
         private  ProjectContext _context;
         private IndustryController _ic;
+        private ChartController _cc;
         private SectorController _sc;
         private OrganizationController _oc;
         private UsecaseController _uc;
@@ -32,7 +33,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             _ic = new IndustryController(_context);
             _uc = new UsecaseController(_context);
             _hostingEnvironment = hostingEnvironment;
-            
+            _cc = new ChartController();
     }
 
         [RequireHttps]
@@ -47,52 +48,17 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return View(listOfProjects);
         }
 
-        
-        // GET: DataAnalysis
-        public IActionResult DataAnalysis()
+        [RequireHttps]
+        // GET: Project
+        public async Task<IActionResult> DataAnalysis()
         {
-            Chart chart = new Chart();
+            //1. Hente hele listen af alle projekter
+            List<Project> listOfProjects = await _context.Projects.ToListAsync();
 
-            chart.Type = Enums.ChartType.Line;
+            listOfProjects = mappedProjects(listOfProjects);
 
-
-            Data data = new Data();
-            data.Labels = new List<string>() { "January", "February", "March", "April", "May", "June", "July" };
-
-            LineDataset dataset = new LineDataset()
-            {
-                Label = "My First dataset",
-                Data = new List<double> { 65, 59, 80, 81, 56, 55, 40 },
-                Fill = "false",
-                LineTension = 0.1,
-                BackgroundColor = ChartColor.FromRgba(75, 192, 192, 0.4),
-                BorderColor = ChartColor.FromRgb(75, 192, 192),
-                BorderCapStyle = "butt",
-                BorderDash = new List<int> { },
-                BorderDashOffset = 0.0,
-                BorderJoinStyle = "miter",
-                PointBorderColor = new List<ChartColor> { ChartColor.FromRgb(75, 192, 192) },
-                PointBackgroundColor = new List<ChartColor> { ChartColor.FromHexString("#ffffff") },
-                PointBorderWidth = new List<int> { 1 },
-                PointHoverRadius = new List<int> { 5 },
-                PointHoverBackgroundColor = new List<ChartColor> { ChartColor.FromRgb(75, 192, 192) },
-                PointHoverBorderColor = new List<ChartColor> { ChartColor.FromRgb(220, 220, 220) },
-                PointHoverBorderWidth = new List<int> { 2 },
-                PointRadius = new List<int> { 1 },
-                PointHitRadius = new List<int> { 10 },
-                SpanGaps = false
-            };
-
-            data.Datasets = new List<Dataset>();
-            data.Datasets.Add(dataset);
-
-            chart.Data = data;
-
-            ViewData["chart"] = chart;
-
-            return View();
+            return _cc.Index(listOfProjects);
         }
-
 
 
         // GET: Project/Details/5

@@ -1,38 +1,33 @@
-﻿
-  
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿using System.Collections.Generic;
+using Asp.netCoreMVCCrud1.Models;
 using ChartJSCore.Helpers;
 using ChartJSCore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace bitScry.Controllers.Projects
+namespace Asp.netCoreMVCCrud1.Controllers
 {
-    [Route("Projects/[controller]/[action]")]
+    
     public class ChartController : Controller
     {
-        private readonly IConfiguration _config;
-
-        public ChartController(IConfiguration config)
+        public ChartController()
         {
-            _config = config;
+           
         }
 
-        [HttpGet("/Projects/[controller]")]
+
+
         [ActionName("Index")]
-        public IActionResult Index()
+        public IActionResult Index(List<Project> listOfProjects)
         {
-            Chart barChart = GenerateBarChart();
-            Chart lineChart = GenerateLineChart();
-            Chart lineScatterChart = GenerateLineScatterChart();
-            Chart radarChart = GenerateRadarChart();
-            Chart polarChart = GeneratePolarChart();
-            Chart pieChart = GeneratePieChart();
-            Chart nestedDoughnutChart = GenerateNestedDoughnutChart();
+            
+            Chart barChart = GenerateBarChart(listOfProjects);
+            Chart lineChart = GenerateLineChart(listOfProjects);
+            Chart lineScatterChart = GenerateLineScatterChart(listOfProjects);
+            Chart radarChart = GenerateRadarChart(listOfProjects);
+            Chart polarChart = GeneratePolarChart(listOfProjects);
+            Chart pieChart = GeneratePieChart(listOfProjects);
+            Chart nestedDoughnutChart = GenerateNestedDoughnutChart(listOfProjects);
 
             ViewData["BarChart"] = barChart;
             ViewData["LineChart"] = lineChart;
@@ -42,11 +37,12 @@ namespace bitScry.Controllers.Projects
             ViewData["PieChart"] = pieChart;
             ViewData["NestedDoughnutChart"] = nestedDoughnutChart;
 
-            return View("~/Views/Projects/Chart/Index.cshtml");
+            return View("~/Views/Project/DataAnalysis.cshtml");
         }
 
-        private static Chart GenerateBarChart()
+        private static Chart GenerateBarChart(List<Project> listOfProjects)
         {
+
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.Bar;
 
@@ -135,7 +131,7 @@ namespace bitScry.Controllers.Projects
             return chart;
         }
 
-        private static Chart GenerateLineChart()
+        private static Chart GenerateLineChart(List<Project> listOfProjects)
         {
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.Line;
@@ -203,7 +199,7 @@ namespace bitScry.Controllers.Projects
             return chart;
         }
 
-        private static Chart GenerateLineScatterChart()
+        private static Chart GenerateLineScatterChart(List<Project> listOfProjects)
         {
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.Line;
@@ -265,7 +261,7 @@ namespace bitScry.Controllers.Projects
             return chart;
         }
 
-        private static Chart GenerateRadarChart()
+        private static Chart GenerateRadarChart(List<Project> listOfProjects)
         {
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.Radar;
@@ -306,7 +302,7 @@ namespace bitScry.Controllers.Projects
             return chart;
         }
 
-        private static Chart GeneratePolarChart()
+        private static Chart GeneratePolarChart(List<Project> listOfProjects)
         {
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.PolarArea;
@@ -335,7 +331,7 @@ namespace bitScry.Controllers.Projects
             return chart;
         }
 
-        private static Chart GeneratePieChart()
+        private static Chart GeneratePieChart(List<Project> listOfProjects)
         {
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.Pie;
@@ -367,7 +363,7 @@ namespace bitScry.Controllers.Projects
             return chart;
         }
 
-        private static Chart GenerateNestedDoughnutChart()
+        private static Chart GenerateNestedDoughnutChart(List<Project> listOfProjects)
         {
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.Doughnut;
