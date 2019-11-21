@@ -4,6 +4,7 @@
     ViewData["Title"] = "DataAnalysis";
 
     Chart barChartForUsecase = (Chart)ViewData["BarChartForUsecase"];
+    Chart barChartForMaturity = (Chart)ViewData["BarChartForMaturity"];
     Chart lineChart = (Chart)ViewData["LineChart"];
     Chart lineScatterChart = (Chart)ViewData["LineScatterChart"];
     Chart radarChart = (Chart)ViewData["RadarChart"];
@@ -25,16 +26,23 @@
 <div class="row">
     <div class="card col-md-6">
         <div class="card-body">
-            <h5 class="card-title">Industry Breakdown</h5>
+            <h5 class="card-title">Use case Breakdown</h5>
             <canvas id="barChartForUsecase"></canvas>
-            
+
+        </div>
+    </div>
+    <div class="card col-md-6">
+        <div class="card-body">
+            <h5 class="card-title">Maturity Breakdown</h5>
+            <canvas id="barChartForMaturity"></canvas>
+
         </div>
     </div>
     <div class="card col-md-6">
         <div class="card-body">
             <h5 class="card-title">Sector Breakdown</h5>
             <canvas id="lineChart"></canvas>
-            
+
         </div>
     </div>
 </div>
@@ -112,6 +120,9 @@
 
     <script type="text/javascript">
         @Html.Raw(barChartForUsecase.CreateChartCode("barChartForUsecase"));
+    </script>
+    <script type="text/javascript">
+        @Html.Raw(barChartForMaturity.CreateChartCode("barChartForMaturity"));
     </script>
     <script type="text/javascript">
         @Html.Raw(lineChart.CreateChartCode("lineChart"));
