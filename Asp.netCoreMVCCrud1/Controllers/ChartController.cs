@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Asp.netCoreMVCCrud1.Models;
 using ChartJSCore.Helpers;
 using ChartJSCore.Models;
@@ -10,6 +12,8 @@ namespace Asp.netCoreMVCCrud1.Controllers
     
     public class ChartController : Controller
     {
+        ProjectContext _context;
+
         public ChartController()
         {
            
@@ -21,7 +25,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
         public IActionResult Index(List<Project> listOfProjects)
         {
             
-            Chart barChart = GenerateBarChart(listOfProjects);
+            Chart barChartForUsecase = GenerateBarChartForUsecase(listOfProjects);
             Chart lineChart = GenerateLineChart(listOfProjects);
             Chart lineScatterChart = GenerateLineScatterChart(listOfProjects);
             Chart radarChart = GenerateRadarChart(listOfProjects);
@@ -29,7 +33,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             Chart pieChart = GeneratePieChart(listOfProjects);
             Chart nestedDoughnutChart = GenerateNestedDoughnutChart(listOfProjects);
 
-            ViewData["BarChart"] = barChart;
+            ViewData["BarChartForUsecase"] = barChartForUsecase;
             ViewData["LineChart"] = lineChart;
             ViewData["LineScatterChart"] = lineScatterChart;
             ViewData["RadarChart"] = radarChart;
@@ -40,19 +44,51 @@ namespace Asp.netCoreMVCCrud1.Controllers
             return View("~/Views/Project/DataAnalysis.cshtml");
         }
 
-        private static Chart GenerateBarChart(List<Project> listOfProjects)
+        //Starting with Usecases
+        private static Chart GenerateBarChartForUsecase(List<Project> listOfProjects)
         {
 
             Chart chart = new Chart();
             chart.Type = Enums.ChartType.Bar;
-
             Data data = new Data();
-            data.Labels = new List<string>() { "Red", "Blue", "Yellow", "Green", "Purple", "Orange" };
 
+            Dictionary<int, string> usecaseMap = new Dictionary<int, string>();
+            Dictionary<string, int> usecaseMap2 = new Dictionary<string, int>();
+            Dictionary<string, int> counterMap = new Dictionary<string, int>();
+            List<double> countList = new List<double>();
+            List<string> usecaseNames = new List<string>();
+
+            //Setting the different names for the bars
+            foreach (Usecase uc in listOfProjects[0].UsecaseList)
+            {
+                usecaseNames.Add(uc.UsecaseName);
+                usecaseMap.Add(uc.UsecaseId, uc.UsecaseName);
+                usecaseMap2.Add(uc.UsecaseName, uc.UsecaseId);
+                counterMap.Add(uc.UsecaseName, 0);
+            }
+            data.Labels = usecaseNames;
+
+            foreach (Project p in listOfProjects)
+            {
+                if (usecaseMap.TryGetValue(p.UseCaseId, out string indResult))
+                {
+                    counterMap[indResult]++;
+                }
+            }
+
+            foreach (var usecaseName in data.Labels)
+            {
+                if (counterMap.TryGetValue(usecaseName, out int indResult))
+                {
+                    countList.Add(indResult);
+                }
+            }
+
+           
             BarDataset dataset = new BarDataset()
             {
                 Label = "# of Votes",
-                Data = new List<double>() { 12, 19, 3, 5, 2, 3 },
+                Data = countList,
                 BackgroundColor = new List<ChartColor>
                 {
                     ChartColor.FromRgba(255, 99, 132, 0.2),

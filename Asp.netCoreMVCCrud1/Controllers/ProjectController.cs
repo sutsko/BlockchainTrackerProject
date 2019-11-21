@@ -11,8 +11,6 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Threading;
-using ChartJSCore.Helpers;
-using ChartJSCore.Models;
 
 namespace Asp.netCoreMVCCrud1.Controllers
 {
@@ -379,7 +377,9 @@ namespace Asp.netCoreMVCCrud1.Controllers
             List<Organization> listOfOrganizations = _oc.GetOrgList();
             List<Usecase> listOfUsecases = _uc.GetUsecList();
             List<Industry> listOfIndustries = _ic.GetInduList();
-
+            listOfProjects[0].OrganizationList = listOfOrganizations;
+            listOfProjects[0].UsecaseList = listOfUsecases;
+            listOfProjects[0].IndustryList = listOfIndustries;
 
             //3. Lave mappings over dem - altså fra punkt 2 og deres id 
             Dictionary<int, string> organizationMap = new Dictionary<int, string>();

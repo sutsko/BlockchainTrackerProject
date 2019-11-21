@@ -18,6 +18,10 @@ namespace Asp.netCoreMVCCrud1.Controllers
             _context = context;
         }
 
+        public UsecaseController()
+        {
+        }
+
         // GET: Usecase
         public async Task<IActionResult> Index()
         {
