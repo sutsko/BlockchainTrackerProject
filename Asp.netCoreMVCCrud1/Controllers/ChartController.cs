@@ -26,6 +26,8 @@ namespace Asp.netCoreMVCCrud1.Controllers
             
             Chart barChartForUsecase = GenerateBarChartForUsecase(listOfProjects);
             Chart barChartForMaturity = GenerateBarChartForMaturity(listOfProjects);
+            Chart barChartForYearOnYear = GenerateBarChartForYearOnYear(listOfProjects);
+            Chart barChartForIndustry= GenerateBarChartForIndustry(listOfProjects);
             Chart lineChart = GenerateLineChart(listOfProjects);
             Chart lineScatterChart = GenerateLineScatterChart(listOfProjects);
             Chart radarChart = GenerateRadarChart(listOfProjects);
@@ -35,6 +37,8 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             ViewData["BarChartForUsecase"] = barChartForUsecase;
             ViewData["BarChartForMaturity"] = barChartForMaturity;
+            ViewData["BarChartForYearOnYear"] = barChartForYearOnYear;
+            ViewData["BarChartForIndustry"] = barChartForIndustry;
             ViewData["LineChart"] = lineChart;
             ViewData["LineScatterChart"] = lineScatterChart;
             ViewData["RadarChart"] = radarChart;
@@ -46,122 +50,9 @@ namespace Asp.netCoreMVCCrud1.Controllers
         }
 
         //Starting with Usecases
-        private static Chart GenerateBarChartForUsecase(List<Project> listOfProjects)
-        {
-
-            Chart chart = new Chart();
-            chart.Type = Enums.ChartType.Bar;
-            Data data = new Data();
-
-            Dictionary<int, string> usecaseMap = new Dictionary<int, string>();
-            Dictionary<string, int> counterMap = new Dictionary<string, int>();
-            List<double> countList = new List<double>();
-            List<string> usecaseNames = new List<string>();
-
-            //Setting the different names for the bars
-            foreach (Usecase uc in listOfProjects[0].UsecaseList)
-            {
-                usecaseNames.Add(uc.UsecaseName);
-                usecaseMap.Add(uc.UsecaseId, uc.UsecaseName);
-                counterMap.Add(uc.UsecaseName, 0);
-            }
-            data.Labels = usecaseNames;
-
-            foreach (Project p in listOfProjects)
-            {
-                if (usecaseMap.TryGetValue(p.UseCaseId, out string indResult))
-                {
-                    counterMap[indResult]++;
-                }
-            }
-
-            foreach (var usecaseName in data.Labels)
-            {
-                if (counterMap.TryGetValue(usecaseName, out int indResult))
-                {
-                    countList.Add(indResult);
-                }
-            }
-
-            //Maybe this foreach and the one above could be merged?
-            List<ChartColor> listOfBackgroundColors = new List<ChartColor>();
-            List <ChartColor> listOfBorderColors = new List<ChartColor>();
-            Random r = new Random();
-            foreach (var usecaseName in data.Labels)
-            {
-                listOfBackgroundColors.Add(ChartColor.FromRgba((byte) r.Next(1, 255), (byte) r.Next(1, 255), (byte) r.Next(1, 255), 0.2));
-                listOfBorderColors.Add(ChartColor.FromRgb(listOfBackgroundColors.Last().Red, listOfBackgroundColors.Last().Green, listOfBackgroundColors.Last().Blue));
-            }
-
-           
-            BarDataset dataset = new BarDataset()
-            {
-                Label = "# of Use cases",
-                Data = countList,
-                BackgroundColor = listOfBackgroundColors,
-                BorderColor = listOfBorderColors,
-                BorderWidth = new List<int>() { 1 }
-            };
-
-            data.Datasets = new List<Dataset>();
-            data.Datasets.Add(dataset);
-
-            chart.Data = data;
-
-            var options = new Options
-            {
-                Scales = new Scales()
-            };
-
-            var scales = new Scales
-            {
-                YAxes = new List<Scale>
-                {
-                    new CartesianScale
-                    {
-                        Ticks = new CartesianLinearTick
-                        {
-                            BeginAtZero = true
-                        }
-                    }
-                },
-                XAxes = new List<Scale>
-                {
-                    new BarScale
-                    {
-                        BarPercentage = 0.5,
-                        BarThickness = 6,
-                        MaxBarThickness = 8,
-                        MinBarLength = 2,
-                        GridLines = new GridLine()
-                        {
-                            OffsetGridLines = true
-                        }
-                    }
-                }
-            };
-
-            options.Scales = scales;
-
-            chart.Options = options;
-
-            chart.Options.Layout = new Layout
-            {
-                Padding = new Padding
-                {
-                    PaddingObject = new PaddingObject
-                    {
-                        Left = 10,
-                        Right = 12
-                    }
-                }
-            };
-
-            return chart;
-        }
-
+      
         //Starting with Industries. Probably should not implement this yet, since there are so f. many industries. Should add if it amount of mentionnings in listofprojects == 0 they should be removed from graph
-        private static Chart GenerateBarChartForIndustry(List<Project> listOfProjects)
+        /*private static Chart GenerateBarChartForIndustry(List<Project> listOfProjects)
         {
 
             Chart chart = new Chart();
@@ -274,6 +165,246 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             return chart;
         }
+       */
+        private static Chart GenerateBarChartForIndustry(List<Project> listOfProjects)
+        {
+
+            Chart chart = new Chart();
+            chart.Type = Enums.ChartType.Bar;
+            Data data = new Data();
+
+            List<List<Project>> result = listOfProjects
+           .GroupBy(p => p.IndustryId)
+              .Select(g => g.ToList())
+                   .ToList();
+
+            List<string> datalabels = new List<string>();
+           
+            Dictionary<int, string> industryMap2 = new Dictionary<int, string>();
+            Dictionary<string, double> counterMap = new Dictionary<string, double>();
+
+            //Setting the different names for the bars
+            foreach (Industry i in listOfProjects[0].IndustryList)
+            {
+                industryMap2.Add(i.IndustryId, i.IndustryName);
+            }
+
+            foreach (var projectListByUsecase in result)
+            {
+                datalabels.Add(industryMap2[projectListByUsecase[0].IndustryId]);
+
+                counterMap.Add(industryMap2[projectListByUsecase[0].IndustryId], (double)projectListByUsecase.Count);
+            }
+
+            List<double> countList = new List<double>();
+            data.Labels = datalabels;
+
+
+            foreach (var industry in data.Labels)
+            {
+                if (counterMap.TryGetValue(industry, out double indResult))
+                {
+                    countList.Add(indResult);
+                }
+            }
+
+
+            //Maybe this foreach and the one above could be merged?
+            List<ChartColor> listOfBackgroundColors = new List<ChartColor>();
+            List<ChartColor> listOfBorderColors = new List<ChartColor>();
+            Random r = new Random();
+            foreach (var usecaseName in data.Labels)
+            {
+                listOfBackgroundColors.Add(ChartColor.FromRgba((byte)r.Next(1, 255), (byte)r.Next(1, 255), (byte)r.Next(1, 255), 0.2));
+                listOfBorderColors.Add(ChartColor.FromRgb(listOfBackgroundColors.Last().Red, listOfBackgroundColors.Last().Green, listOfBackgroundColors.Last().Blue));
+            }
+
+
+            BarDataset dataset = new BarDataset()
+            {
+                Label = "# of Industry usages",
+                Data = countList,
+                BackgroundColor = listOfBackgroundColors,
+                BorderColor = listOfBorderColors,
+                BorderWidth = new List<int>() { 1 }
+            };
+
+            data.Datasets = new List<Dataset>();
+            data.Datasets.Add(dataset);
+
+            chart.Data = data;
+
+            var options = new Options
+            {
+                Scales = new Scales()
+            };
+
+            var scales = new Scales
+            {
+                YAxes = new List<Scale>
+                {
+                    new CartesianScale
+                    {
+                        Ticks = new CartesianLinearTick
+                        {
+                            BeginAtZero = true
+                        }
+                    }
+                },
+                XAxes = new List<Scale>
+                {
+                    new BarScale
+                    {
+                        BarPercentage = 0.5,
+                        BarThickness = 6,
+                        MaxBarThickness = 8,
+                        MinBarLength = 2,
+                        GridLines = new GridLine()
+                        {
+                            OffsetGridLines = true
+                        }
+                    }
+                }
+            };
+
+            options.Scales = scales;
+
+            chart.Options = options;
+
+            chart.Options.Layout = new Layout
+            {
+                Padding = new Padding
+                {
+                    PaddingObject = new PaddingObject
+                    {
+                        Left = 10,
+                        Right = 12
+                    }
+                }
+            };
+
+            return chart;
+        }
+
+        private static Chart GenerateBarChartForUsecase(List<Project> listOfProjects)
+        {
+
+            Chart chart = new Chart();
+            chart.Type = Enums.ChartType.Bar;
+            Data data = new Data();
+
+            List<List<Project>> result = listOfProjects
+           .GroupBy(p => p.UseCaseId)
+              .Select(g => g.ToList())
+                   .ToList();
+
+            List<string> datalabels = new List<string>();
+            Dictionary<int, List<Project>> usecaseMap = new Dictionary<int, List<Project>>();
+            Dictionary<int, string> usecaseMap2 = new Dictionary<int, string>();
+            Dictionary<string, double> counterMap = new Dictionary<string, double>();
+
+            //Setting the different names for the bars
+            foreach (Usecase uc in listOfProjects[0].UsecaseList)
+            {
+                usecaseMap2.Add(uc.UsecaseId, uc.UsecaseName);
+            }
+
+            foreach (var projectListByUsecase in result)
+            {
+                datalabels.Add(usecaseMap2[projectListByUsecase[0].UseCaseId]); 
+
+                counterMap.Add(usecaseMap2[projectListByUsecase[0].UseCaseId], (double)projectListByUsecase.Count);
+            }
+
+            List<double> countList = new List<double>();
+            data.Labels = datalabels;
+
+
+            foreach (var usecase in data.Labels)
+            {
+                if (counterMap.TryGetValue(usecase, out double indResult))
+                {
+                    countList.Add(indResult);
+                }
+            }
+
+
+            //Maybe this foreach and the one above could be merged?
+            List<ChartColor> listOfBackgroundColors = new List<ChartColor>();
+            List<ChartColor> listOfBorderColors = new List<ChartColor>();
+            Random r = new Random();
+            foreach (var usecaseName in data.Labels)
+            {
+                listOfBackgroundColors.Add(ChartColor.FromRgba((byte)r.Next(1, 255), (byte)r.Next(1, 255), (byte)r.Next(1, 255), 0.2));
+                listOfBorderColors.Add(ChartColor.FromRgb(listOfBackgroundColors.Last().Red, listOfBackgroundColors.Last().Green, listOfBackgroundColors.Last().Blue));
+            }
+
+
+            BarDataset dataset = new BarDataset()
+            {
+                Label = "# of Use cases",
+                Data = countList,
+                BackgroundColor = listOfBackgroundColors,
+                BorderColor = listOfBorderColors,
+                BorderWidth = new List<int>() { 1 }
+            };
+
+            data.Datasets = new List<Dataset>();
+            data.Datasets.Add(dataset);
+
+            chart.Data = data;
+
+            var options = new Options
+            {
+                Scales = new Scales()
+            };
+
+            var scales = new Scales
+            {
+                YAxes = new List<Scale>
+                {
+                    new CartesianScale
+                    {
+                        Ticks = new CartesianLinearTick
+                        {
+                            BeginAtZero = true
+                        }
+                    }
+                },
+                XAxes = new List<Scale>
+                {
+                    new BarScale
+                    {
+                        BarPercentage = 0.5,
+                        BarThickness = 6,
+                        MaxBarThickness = 8,
+                        MinBarLength = 2,
+                        GridLines = new GridLine()
+                        {
+                            OffsetGridLines = true
+                        }
+                    }
+                }
+            };
+
+            options.Scales = scales;
+
+            chart.Options = options;
+
+            chart.Options.Layout = new Layout
+            {
+                Padding = new Padding
+                {
+                    PaddingObject = new PaddingObject
+                    {
+                        Left = 10,
+                        Right = 12
+                    }
+                }
+            };
+
+            return chart;
+        }
 
         private static Chart GenerateBarChartForMaturity(List<Project> listOfProjects)
         {
@@ -282,36 +413,35 @@ namespace Asp.netCoreMVCCrud1.Controllers
             chart.Type = Enums.ChartType.Bar;
             Data data = new Data();
 
-            Dictionary<string, string> maturityMap = new Dictionary<string, string>();
-            Dictionary<string, int> counterMap = new Dictionary<string, int>();
+            List<List<Project>> result = listOfProjects
+             .GroupBy(p => p.Maturity)
+                .Select(g => g.ToList())
+                     .ToList();
+
+            List<string> datalabels = new List<string>();
+            Dictionary<string, List<Project>> maturityMap = new Dictionary<string, List<Project>>();
+            Dictionary<string, double> counterMap = new Dictionary<string, double>();
+
+            foreach (var projectListByMaturity in result)
+            {
+                datalabels.Add(projectListByMaturity[0].Maturity);
+                maturityMap.Add(projectListByMaturity[0].Maturity, projectListByMaturity);
+                counterMap.Add(projectListByMaturity[0].Maturity, (double)projectListByMaturity.Count);
+            }
+
             List<double> countList = new List<double>();
-            data.Labels = new List<string> {"Under Development",  "Test", "Operational", "Stalled"};
+            data.Labels = datalabels;
 
-            //Setting the different names for the bars
-            foreach (string maturity in data.Labels )
-            {
-                maturityMap.Add(maturity, maturity);
-                counterMap.Add(maturity, 0);
-            }
-             
 
-            foreach (Project p in listOfProjects)
+            foreach (var maturity in data.Labels)
             {
-                if (maturityMap.TryGetValue(p.Maturity, out string indResult))
-                {
-                    counterMap[indResult]++;
-                }
-            }
-
-            foreach (var maturityName in data.Labels)
-            {
-                if (counterMap.TryGetValue(maturityName, out int indResult))
+                if (counterMap.TryGetValue(maturity, out double indResult))
                 {
                     countList.Add(indResult);
                 }
             }
 
-            //Maybe this foreach and the one above could be merged?
+            //Maybe this foreach and the one above could be merged? Since they both iterate in data.labels
             List<ChartColor> listOfBackgroundColors = new List<ChartColor>();
             List<ChartColor> listOfBorderColors = new List<ChartColor>();
             Random r = new Random();
@@ -324,7 +454,123 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             BarDataset dataset = new BarDataset()
             {
-                Label = "# of Use cases",
+                Label = "# of Maturity",
+                Data = countList,
+                BackgroundColor = listOfBackgroundColors,
+                BorderColor = listOfBorderColors,
+                BorderWidth = new List<int>() { 1 }
+            };
+
+            data.Datasets = new List<Dataset>();
+            data.Datasets.Add(dataset);
+
+            chart.Data = data;
+
+            var options = new Options
+            {
+                Scales = new Scales()
+            };
+
+            var scales = new Scales
+            {
+                YAxes = new List<Scale>
+                {
+                    new CartesianScale
+                    {
+                        Ticks = new CartesianLinearTick
+                        {
+                            BeginAtZero = true
+                        }
+                    }
+                },
+                XAxes = new List<Scale>
+                {
+                    new BarScale
+                    {
+                        BarPercentage = 0.5,
+                        BarThickness = 6,
+                        MaxBarThickness = 8,
+                        MinBarLength = 2,
+                        GridLines = new GridLine()
+                        {
+                            OffsetGridLines = true
+                        }
+                    }
+                }
+            };
+
+            options.Scales = scales;
+
+            chart.Options = options;
+
+            chart.Options.Layout = new Layout
+            {
+                Padding = new Padding
+                {
+                    PaddingObject = new PaddingObject
+                    {
+                        Left = 10,
+                        Right = 12
+                    }
+                }
+            };
+
+            return chart;
+        }
+
+        private static Chart GenerateBarChartForYearOnYear(List<Project> listOfProjects)
+        {
+
+            Chart chart = new Chart();
+            chart.Type = Enums.ChartType.Bar;
+            Data data = new Data();
+
+            List<List<Project>> result = listOfProjects
+             .GroupBy(p => p.ArticleDate.Year)
+                .Select(g => g.ToList())
+                     .ToList();
+
+
+            List<string> datalabels = new List<string>();
+            Dictionary<string, List<Project>> yearMap = new Dictionary<string, List<Project>>();
+            Dictionary<string, double> counterMap = new Dictionary<string, double>();
+
+            foreach (var projectListByYear in result)
+            {
+                datalabels.Add(projectListByYear[0].ArticleDate.Year.ToString());
+                yearMap.Add(projectListByYear[0].ArticleDate.Year.ToString(), projectListByYear);
+                counterMap.Add(projectListByYear[0].ArticleDate.Year.ToString(), (double) projectListByYear.Count);
+            }
+
+        
+            
+            
+            List<double> countList = new List<double>();
+            data.Labels = datalabels;
+
+
+            foreach (var year in data.Labels)
+            {
+                if (counterMap.TryGetValue(year, out double indResult))
+                {
+                    countList.Add(indResult);
+                }
+            }
+
+            //Maybe this foreach and the one above could be merged?
+            List<ChartColor> listOfBackgroundColors = new List<ChartColor>();
+            List<ChartColor> listOfBorderColors = new List<ChartColor>();
+            Random r = new Random();
+            foreach (var year in data.Labels)
+            {
+                listOfBackgroundColors.Add(ChartColor.FromRgba((byte)r.Next(1, 255), (byte)r.Next(1, 255), (byte)r.Next(1, 255), 0.2));
+                listOfBorderColors.Add(ChartColor.FromRgb(listOfBackgroundColors.Last().Red, listOfBackgroundColors.Last().Green, listOfBackgroundColors.Last().Blue));
+            }
+
+
+            BarDataset dataset = new BarDataset()
+            {
+                Label = "# of projects per year",
                 Data = countList,
                 BackgroundColor = listOfBackgroundColors,
                 BorderColor = listOfBorderColors,
@@ -695,5 +941,233 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             return chart;
         }
+
+        /* private static Chart GenerateBarChartForMaturity(List<Project> listOfProjects)
+        {
+
+            Chart chart = new Chart();
+            chart.Type = Enums.ChartType.Bar;
+            Data data = new Data();
+
+            Dictionary<string, string> maturityMap = new Dictionary<string, string>();
+            Dictionary<string, int> counterMap = new Dictionary<string, int>();
+            List<double> countList = new List<double>();
+            data.Labels = new List<string> {"Under Development",  "Test", "Operational", "Stalled"};
+
+            //Setting the different names for the bars
+            foreach (string maturity in data.Labels )
+            {
+                maturityMap.Add(maturity, maturity);
+                counterMap.Add(maturity, 0);
+            }
+             
+
+            foreach (Project p in listOfProjects)
+            {
+                if (maturityMap.TryGetValue(p.Maturity, out string indResult))
+                {
+                    counterMap[indResult]++;
+                }
+            }
+
+            foreach (var maturityName in data.Labels)
+            {
+                if (counterMap.TryGetValue(maturityName, out int indResult))
+                {
+                    countList.Add(indResult);
+                }
+            }
+
+            //Maybe this foreach and the one above could be merged?
+            List<ChartColor> listOfBackgroundColors = new List<ChartColor>();
+            List<ChartColor> listOfBorderColors = new List<ChartColor>();
+            Random r = new Random();
+            foreach (var maturityName in data.Labels)
+            {
+                listOfBackgroundColors.Add(ChartColor.FromRgba((byte)r.Next(1, 255), (byte)r.Next(1, 255), (byte)r.Next(1, 255), 0.2));
+                listOfBorderColors.Add(ChartColor.FromRgb(listOfBackgroundColors.Last().Red, listOfBackgroundColors.Last().Green, listOfBackgroundColors.Last().Blue));
+            }
+
+
+            BarDataset dataset = new BarDataset()
+            {
+                Label = "# of Maturity",
+                Data = countList,
+                BackgroundColor = listOfBackgroundColors,
+                BorderColor = listOfBorderColors,
+                BorderWidth = new List<int>() { 1 }
+            };
+
+            data.Datasets = new List<Dataset>();
+            data.Datasets.Add(dataset);
+
+            chart.Data = data;
+
+            var options = new Options
+            {
+                Scales = new Scales()
+            };
+
+            var scales = new Scales
+            {
+                YAxes = new List<Scale>
+                {
+                    new CartesianScale
+                    {
+                        Ticks = new CartesianLinearTick
+                        {
+                            BeginAtZero = true
+                        }
+                    }
+                },
+                XAxes = new List<Scale>
+                {
+                    new BarScale
+                    {
+                        BarPercentage = 0.5,
+                        BarThickness = 6,
+                        MaxBarThickness = 8,
+                        MinBarLength = 2,
+                        GridLines = new GridLine()
+                        {
+                            OffsetGridLines = true
+                        }
+                    }
+                }
+            };
+
+            options.Scales = scales;
+
+            chart.Options = options;
+
+            chart.Options.Layout = new Layout
+            {
+                Padding = new Padding
+                {
+                    PaddingObject = new PaddingObject
+                    {
+                        Left = 10,
+                        Right = 12
+                    }
+                }
+            };
+
+            return chart;
+        }
+    */
+        /*private static Chart GenerateBarChartForUsecases(List<Project> listOfProjects)
+          {
+
+              Chart chart = new Chart();
+              chart.Type = Enums.ChartType.Bar;
+              Data data = new Data();
+
+              Dictionary<int, string> usecaseMap = new Dictionary<int, string>();
+              Dictionary<string, int> counterMap = new Dictionary<string, int>();
+              List<double> countList = new List<double>();
+              List<string> usecaseNames = new List<string>();
+
+              //Setting the different names for the bars
+              foreach (Usecase uc in listOfProjects[0].UsecaseList)
+              {
+                  usecaseNames.Add(uc.UsecaseName);
+                  usecaseMap.Add(uc.UsecaseId, uc.UsecaseName);
+                  counterMap.Add(uc.UsecaseName, 0);
+              }
+              data.Labels = usecaseNames;
+
+              foreach (Project p in listOfProjects)
+              {
+                  if (usecaseMap.TryGetValue(p.UseCaseId, out string indResult))
+                  {
+                      counterMap[indResult]++;
+                  }
+              }
+
+              foreach (var usecaseName in data.Labels)
+              {
+                  if (counterMap.TryGetValue(usecaseName, out int indResult))
+                  {
+                      countList.Add(indResult);
+                  }
+              }
+
+              //Maybe this foreach and the one above could be merged?
+              List<ChartColor> listOfBackgroundColors = new List<ChartColor>();
+              List <ChartColor> listOfBorderColors = new List<ChartColor>();
+              Random r = new Random();
+              foreach (var usecaseName in data.Labels)
+              {
+                  listOfBackgroundColors.Add(ChartColor.FromRgba((byte) r.Next(1, 255), (byte) r.Next(1, 255), (byte) r.Next(1, 255), 0.2));
+                  listOfBorderColors.Add(ChartColor.FromRgb(listOfBackgroundColors.Last().Red, listOfBackgroundColors.Last().Green, listOfBackgroundColors.Last().Blue));
+              }
+
+
+              BarDataset dataset = new BarDataset()
+              {
+                  Label = "# of Use cases",
+                  Data = countList,
+                  BackgroundColor = listOfBackgroundColors,
+                  BorderColor = listOfBorderColors,
+                  BorderWidth = new List<int>() { 1 }
+              };
+
+              data.Datasets = new List<Dataset>();
+              data.Datasets.Add(dataset);
+
+              chart.Data = data;
+
+              var options = new Options
+              {
+                  Scales = new Scales()
+              };
+
+              var scales = new Scales
+              {
+                  YAxes = new List<Scale>
+                  {
+                      new CartesianScale
+                      {
+                          Ticks = new CartesianLinearTick
+                          {
+                              BeginAtZero = true
+                          }
+                      }
+                  },
+                  XAxes = new List<Scale>
+                  {
+                      new BarScale
+                      {
+                          BarPercentage = 0.5,
+                          BarThickness = 6,
+                          MaxBarThickness = 8,
+                          MinBarLength = 2,
+                          GridLines = new GridLine()
+                          {
+                              OffsetGridLines = true
+                          }
+                      }
+                  }
+              };
+
+              options.Scales = scales;
+
+              chart.Options = options;
+
+              chart.Options.Layout = new Layout
+              {
+                  Padding = new Padding
+                  {
+                      PaddingObject = new PaddingObject
+                      {
+                          Left = 10,
+                          Right = 12
+                      }
+                  }
+              };
+
+              return chart;
+          }
+          */
     }
 }

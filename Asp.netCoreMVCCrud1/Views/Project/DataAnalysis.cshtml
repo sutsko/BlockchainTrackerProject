@@ -5,6 +5,8 @@
 
     Chart barChartForUsecase = (Chart)ViewData["BarChartForUsecase"];
     Chart barChartForMaturity = (Chart)ViewData["BarChartForMaturity"];
+    Chart barChartForYearOnYear = (Chart)ViewData["BarChartForYearOnYear"];
+    Chart barChartForIndustry = (Chart)ViewData["BarChartForIndustry"];
     Chart lineChart = (Chart)ViewData["LineChart"];
     Chart lineScatterChart = (Chart)ViewData["LineScatterChart"];
     Chart radarChart = (Chart)ViewData["RadarChart"];
@@ -26,6 +28,21 @@
 <div class="row">
     <div class="card col-md-6">
         <div class="card-body">
+            <h5 class="card-title">Projects by year Breakdown</h5>
+            <canvas id="barChartForYearOnYear"></canvas>
+
+        </div>
+    </div>
+
+    <div class="card col-md-6">
+        <div class="card-body">
+            <h5 class="card-title">Industry Breakdown</h5>
+            <canvas id="barChartForIndustry"></canvas>
+
+        </div>
+    </div>
+    <div class="card col-md-6">
+        <div class="card-body">
             <h5 class="card-title">Use case Breakdown</h5>
             <canvas id="barChartForUsecase"></canvas>
 
@@ -35,17 +52,12 @@
         <div class="card-body">
             <h5 class="card-title">Maturity Breakdown</h5>
             <canvas id="barChartForMaturity"></canvas>
-
         </div>
     </div>
-    <div class="card col-md-6">
-        <div class="card-body">
-            <h5 class="card-title">Sector Breakdown</h5>
-            <canvas id="lineChart"></canvas>
 
-        </div>
-    </div>
+
 </div>
+<!--
 <div class="row">
     <div class="col">
         &nbsp;
@@ -56,14 +68,14 @@
         <div class="card-body">
             <h5 class="card-title">Maturity Breakdown</h5>
             <canvas id="lineScatterChart"></canvas>
-           
+
         </div>
     </div>
     <div class="card col-md-6">
         <div class="card-body">
             <h5 class="card-title">Use case Breakdown</h5>
             <canvas id="radarChart"></canvas>
-            
+
         </div>
     </div>
 </div>
@@ -77,14 +89,14 @@
         <div class="card-body">
             <h5 class="card-title">Polar Chart</h5>
             <canvas id="polarChart"></canvas>
-            
+
         </div>
     </div>
     <div class="card col-md-6">
         <div class="card-body">
             <h5 class="card-title">Pie Chart</h5>
             <canvas id="pieChart"></canvas>
-            
+
         </div>
     </div>
 </div>
@@ -98,17 +110,18 @@
         <div class="card-body">
             <h5 class="card-title">Live Line Chart</h5>
             <canvas id="liveLineChart"></canvas>
-            
+
         </div>
     </div>
     <div class="card col-md-6">
         <div class="card-body">
             <h5 class="card-title">Nested Doughnut Chart</h5>
             <canvas id="nestedDoughnutChart"></canvas>
-            
+
         </div>
     </div>
 </div>
+-->
 <div class="row">
     <div class="col">
         &nbsp;
@@ -125,6 +138,12 @@
         @Html.Raw(barChartForMaturity.CreateChartCode("barChartForMaturity"));
     </script>
     <script type="text/javascript">
+        @Html.Raw(barChartForYearOnYear.CreateChartCode("barChartForYearOnYear"));
+    </script>
+    <script type="text/javascript">
+        @Html.Raw(barChartForIndustry.CreateChartCode("barChartForIndustry"));
+    </script>
+    <script type="text/javascript">
         @Html.Raw(lineChart.CreateChartCode("lineChart"));
     </script>
     <script type="text/javascript">
@@ -139,7 +158,7 @@
     <script type="text/javascript">
         @Html.Raw(pieChart.CreateChartCode("pieChart"));
     </script>
-   
+
     <script type="text/javascript">
         @Html.Raw(nestedDoughnutChart.CreateChartCode("nestedDoughnutChart"));
     </script>
