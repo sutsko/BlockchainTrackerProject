@@ -234,6 +234,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
 
             chart.Data = data;
 
+
             var options = new Options
             {
                 Scales = new Scales()

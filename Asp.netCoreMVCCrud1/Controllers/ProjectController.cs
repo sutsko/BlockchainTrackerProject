@@ -394,6 +394,7 @@ namespace Asp.netCoreMVCCrud1.Controllers
             foreach (Usecase uc in listOfUsecases)
             {
                 usecaseMap.Add(uc.UsecaseId, uc.UsecaseName);
+
             }
 
             foreach (Industry i in listOfIndustries)
